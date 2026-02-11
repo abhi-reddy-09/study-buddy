@@ -1,50 +1,107 @@
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Camera, Plus, X } from "lucide-react"
+import React, { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Camera, Plus, X } from "lucide-react";
+import { fetchCurrentUserProfile, fetchUserImage } from "@/src/api/users";
+import { useAuth } from "@/src/context/AuthContext";
 
 interface UserProfile {
-  name: string
-  age: number
-  university: string
-  course: string
-  bio: string
-  interests: string[]
-  image: string
+  id: number;
+  username: string;
+  age?: number;
+  university?: string;
+  course?: string;
+  bio?: string;
+  interests?: string[];
+  image?: string;
 }
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "John Doe",
-    age: 21,
-    university: "Harvard University",
-    course: "Computer Science",
-    bio: "Passionate about technology and always eager to learn new things. Looking for study partners in AI and web development.",
-    interests: ["Programming", "Machine Learning", "Web Development"],
-    image: "/placeholder.svg?height=200&width=200",
-  })
+  const { currentUser } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [newInterest, setNewInterest] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [newInterest, setNewInterest] = useState("")
-  const [isEditing, setIsEditing] = useState(false)
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (currentUser && currentUser.id) {
+        try {
+          setLoading(true);
+          const fetchedProfile = await fetchCurrentUserProfile();
+          const imageUrl = await fetchUserImage(currentUser.id);
+
+          setProfile({
+            ...fetchedProfile,
+            id: currentUser.id,
+            username: fetchedProfile.username,
+            image: imageUrl,
+            // Assuming the backend returns other profile fields, if not, they'll be undefined
+            // For now, using placeholders for fields not in initial Flask backend
+            age: fetchedProfile.age || 21,
+            university: fetchedProfile.university || "Sathyabama University",
+            course: fetchedProfile.course || "Computer Science",
+            bio: fetchedProfile.bio || "Passionate about technology and always eager to learn new things. Looking for study partners in AI and web development.",
+            interests: fetchedProfile.interests || ["Programming", "Machine Learning", "Web Development"],
+          });
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false); // No current user, so not loading profile
+      }
+    };
+
+    loadProfile();
+  }, [currentUser]);
 
   const addInterest = () => {
-    if (newInterest && !profile.interests.includes(newInterest)) {
+    if (newInterest && profile && profile.interests && !profile.interests.includes(newInterest)) {
       setProfile({
         ...profile,
         interests: [...profile.interests, newInterest],
-      })
-      setNewInterest("")
+      });
+      setNewInterest("");
     }
-  }
+  };
 
   const removeInterest = (interest: string) => {
-    setProfile({
-      ...profile,
-      interests: profile.interests.filter((i) => i !== interest),
-    })
+    if (profile && profile.interests) {
+      setProfile({
+        ...profile,
+        interests: profile.interests.filter((i) => i !== interest),
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <p>Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <p className="text-destructive">Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <p>No profile data available. Please log in.</p>
+      </div>
+    );
   }
 
   return (
@@ -54,10 +111,10 @@ export default function ProfilePage() {
           <div className="relative mx-auto mb-4 h-32 w-32">
             <img
               src={profile.image || "/placeholder.svg"}
-              alt={profile.name}
+              alt={profile.username}
               width={128}
               height={128}
-              className="rounded-full"
+              className="rounded-full object-cover h-full w-full"
             />
             <Button size="icon" variant="secondary" className="absolute bottom-0 right-0 h-8 w-8 rounded-full">
               <Camera className="h-4 w-4" />
@@ -71,11 +128,11 @@ export default function ProfilePage() {
 
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Name</label>
+            <label className="text-sm font-medium">Username</label>
             <Input
-              value={profile.name}
-              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-              disabled={!isEditing}
+              value={profile.username}
+              onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+              disabled={true} // Username is typically not editable
             />
           </div>
 
@@ -84,7 +141,7 @@ export default function ProfilePage() {
               <label className="text-sm font-medium">Age</label>
               <Input
                 type="number"
-                value={profile.age}
+                value={profile.age || ''}
                 onChange={(e) => setProfile({ ...profile, age: Number.parseInt(e.target.value) })}
                 disabled={!isEditing}
               />
@@ -92,7 +149,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-sm font-medium">University</label>
               <Input
-                value={profile.university}
+                value={profile.university || ''}
                 onChange={(e) => setProfile({ ...profile, university: e.target.value })}
                 disabled={!isEditing}
               />
@@ -102,7 +159,7 @@ export default function ProfilePage() {
           <div>
             <label className="text-sm font-medium">Course</label>
             <Input
-              value={profile.course}
+              value={profile.course || ''}
               onChange={(e) => setProfile({ ...profile, course: e.target.value })}
               disabled={!isEditing}
             />
@@ -111,7 +168,7 @@ export default function ProfilePage() {
           <div>
             <label className="text-sm font-medium">Bio</label>
             <Textarea
-              value={profile.bio}
+              value={profile.bio || ''}
               onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
               disabled={!isEditing}
               rows={4}
@@ -121,7 +178,7 @@ export default function ProfilePage() {
           <div>
             <label className="text-sm font-medium">Interests</label>
             <div className="mt-2 flex flex-wrap gap-2">
-              {profile.interests.map((interest) => (
+              {profile.interests && profile.interests.map((interest) => (
                 <Badge key={interest} variant="secondary">
                   {interest}
                   {isEditing && (
@@ -141,8 +198,8 @@ export default function ProfilePage() {
                   placeholder="Add new interest"
                   onKeyPress={(e) => {
                     if (e.key === "Enter") {
-                      e.preventDefault()
-                      addInterest()
+                      e.preventDefault();
+                      addInterest();
                     }
                   }}
                 />
@@ -156,5 +213,5 @@ export default function ProfilePage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }

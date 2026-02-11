@@ -1,137 +1,87 @@
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Heart, X, Sparkles, GraduationCap, MapPin, Star } from "lucide-react"
-import { MotionCard } from "@/components/motion-card"
+import React, { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Heart, X, Sparkles, GraduationCap, MapPin, Star } from "lucide-react";
+import { MotionCard } from "@/components/motion-card";
+import { fetchDiscoveryUsers, fetchUserImage } from "@/src/api/users"; // Import API functions
 
 interface StudyProfile {
-  id: string
-  name: string
-  age: number
-  university: string
-  course: string
-  interests: string[]
-  bio: string
-  image: string
+  id: string;
+  name: string;
+  age: number;
+  university: string;
+  course: string;
+  interests: string[];
+  bio: string;
+  image: string; // Add image field
 }
 
-const profiles: StudyProfile[] = [
-  {
-    id: "1",
-    name: "Priya Sharma",
-    age: 21,
-    university: "Sathyabama University",
-    course: "Biotechnology",
-    interests: ["Genetics", "Bioinformatics", "Healthcare Tech"],
-    bio: "Aspiring geneticist exploring the intersection of biology and technology. Let's research together!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "2",
-    name: "Arjun Das",
-    age: 22,
-    university: "Sathyabama University",
-    course: "Electronics Engineering",
-    interests: ["IoT", "Embedded Systems", "Signal Processing"],
-    bio: "Love working on IoT projects and hardware innovations. Always eager to learn and share knowledge!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "3",
-    name: "Kavya Reddy",
-    age: 20,
-    university: "Sathyabama University",
-    course: "Computer Science",
-    interests: ["AI/ML", "Web Development", "Cloud Computing"],
-    bio: "Passionate about building intelligent systems and web applications. Looking for coding partners!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "4",
-    name: "Rahul Kumar",
-    age: 19,
-    university: "Sathyabama University",
-    course: "Mechanical Engineering",
-    interests: ["CAD Design", "3D Printing", "Automation"],
-    bio: "Mechanical engineering enthusiast with a love for design and automation. Let's build something cool!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "5",
-    name: "Ananya Singh",
-    age: 21,
-    university: "Sathyabama University",
-    course: "Data Science",
-    interests: ["Big Data", "Python", "Data Visualization"],
-    bio: "Data science student looking to collaborate on interesting data analysis projects.",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "6",
-    name: "Vikram Patel",
-    age: 22,
-    university: "Sathyabama University",
-    course: "Civil Engineering",
-    interests: ["Structural Design", "AutoCAD", "Green Building"],
-    bio: "Future civil engineer passionate about sustainable construction. Let's design the future!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "7",
-    name: "Shreya Gupta",
-    age: 20,
-    university: "Sathyabama University",
-    course: "Information Technology",
-    interests: ["Cybersecurity", "Network Design", "Cloud"],
-    bio: "IT enthusiast focusing on cybersecurity and cloud technologies. Always up for tech discussions!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "8",
-    name: "Arun Verma",
-    age: 21,
-    university: "Sathyabama University",
-    course: "Artificial Intelligence",
-    interests: ["Deep Learning", "Computer Vision", "NLP"],
-    bio: "AI researcher working on computer vision projects. Looking for study partners in ML!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "9",
-    name: "Neha Kapoor",
-    age: 19,
-    university: "Sathyabama University",
-    course: "Chemical Engineering",
-    interests: ["Process Design", "Green Chemistry", "Research"],
-    bio: "Chemical engineering student interested in sustainable processes. Let's make chemistry greener!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    id: "10",
-    name: "Karthik Rajan",
-    age: 22,
-    university: "Sathyabama University",
-    course: "Aerospace Engineering",
-    interests: ["Aerodynamics", "CAD", "Propulsion Systems"],
-    bio: "Aerospace enthusiast dreaming of revolutionizing flight. Looking for study partners in aerodynamics!",
-    image: "/placeholder.svg?height=400&width=300",
-  },
-]
-
 export default function DiscoveryPage() {
-  const [currentProfiles, setCurrentProfiles] = useState(profiles)
-  const [swipingDirection, setSwipingDirection] = useState<"left" | "right" | null>(null)
+  const [profiles, setProfiles] = useState<StudyProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [swipingDirection, setSwipingDirection] = useState<"left" | "right" | null>(null);
+
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        setLoading(true);
+        const fetchedUsers = await fetchDiscoveryUsers(); // Fetch users from backend (dummy data for now)
+        const profilesWithImages: StudyProfile[] = await Promise.all(
+          fetchedUsers.map(async (user: any) => {
+            const imageUrl = await fetchUserImage(user.id);
+            // Assuming the backend returns 'name', 'age', 'university', 'course', 'interests', 'bio' for discovery users
+            // For now, let's use some placeholder data for these fields
+            return {
+              id: user.id.toString(),
+              name: user.username, // Using username as name for now
+              age: Math.floor(Math.random() * 5) + 19, // Random age for demo
+              university: "Sathyabama University", // Placeholder
+              course: "Computer Science", // Placeholder
+              interests: ["AI", "Web Dev", "Data Science"], // Placeholder
+              bio: user.bio || "Enthusiastic learner seeking study partners!",
+              image: imageUrl,
+            };
+          })
+        );
+        setProfiles(profilesWithImages);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfiles();
+  }, []);
 
   const handleSwipe = (direction: "left" | "right") => {
-    setSwipingDirection(direction)
+    setSwipingDirection(direction);
     setTimeout(() => {
-      setCurrentProfiles((prev) => prev.slice(1))
-      setSwipingDirection(null)
-    }, 200)
+      setCurrentIndex((prev) => prev + 1);
+      setSwipingDirection(null);
+    }, 200); // Animation duration
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <p>Loading profiles...</p>
+      </div>
+    );
   }
 
-  if (currentProfiles.length === 0) {
+  if (error) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <p className="text-destructive">Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (currentIndex >= profiles.length) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center p-4">
         <Card className="glass-effect animate-bounce-in p-8 text-center">
@@ -147,10 +97,10 @@ export default function DiscoveryPage() {
           <p className="text-muted-foreground">Check back later for more potential study buddies!</p>
         </Card>
       </div>
-    )
+    );
   }
 
-  const currentProfile = currentProfiles[0]
+  const currentProfile = profiles[currentIndex];
 
   return (
     <div className="mx-auto mb-20 mt-4 max-w-md space-y-4 p-4 md:mt-20">
@@ -210,5 +160,5 @@ export default function DiscoveryPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

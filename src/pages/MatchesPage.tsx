@@ -1,132 +1,93 @@
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { MessageCircle, Clock, GraduationCap, Sparkles } from "lucide-react"
-import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
+import React, { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { MessageCircle, Clock, GraduationCap, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { fetchMatchedUsers, fetchUserImage } from "@/src/api/users"; // Import API functions
 
 interface Match {
-  id: string
-  name: string
-  course: string
-  matchDate: string
-  image: string
-  interests: string[]
-  matchPercentage: number
+  id: string;
+  name: string;
+  course: string;
+  matchDate: string; // This would come from backend or be generated
+  image: string;
+  interests: string[];
+  matchPercentage: number; // This would come from backend or be calculated
 }
 
-const matches: Match[] = [
-  {
-    id: "1",
-    name: "Priya Sharma",
-    course: "Biotechnology",
-    matchDate: "Matched 2 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Genetics", "Bioinformatics", "Healthcare"],
-    matchPercentage: 95,
-  },
-  {
-    id: "2",
-    name: "Arjun Das",
-    course: "Electronics Engineering",
-    matchDate: "Matched 3 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["IoT", "Embedded Systems", "Robotics"],
-    matchPercentage: 92,
-  },
-  {
-    id: "3",
-    name: "Kavya Reddy",
-    course: "Computer Science",
-    matchDate: "Matched 4 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["AI/ML", "Web Development", "Cloud Computing"],
-    matchPercentage: 89,
-  },
-  {
-    id: "4",
-    name: "Rahul Kumar",
-    course: "Mechanical Engineering",
-    matchDate: "Matched 5 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["CAD Design", "3D Printing", "Automation"],
-    matchPercentage: 88,
-  },
-  {
-    id: "5",
-    name: "Ananya Singh",
-    course: "Data Science",
-    matchDate: "Matched 6 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Big Data", "Python", "Data Visualization"],
-    matchPercentage: 87,
-  },
-  {
-    id: "6",
-    name: "Vikram Patel",
-    course: "Civil Engineering",
-    matchDate: "Matched 1 week ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Structural Design", "AutoCAD", "Green Building"],
-    matchPercentage: 85,
-  },
-  {
-    id: "7",
-    name: "Shreya Gupta",
-    course: "Information Technology",
-    matchDate: "Matched 1 week ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Cybersecurity", "Network Design", "Cloud"],
-    matchPercentage: 84,
-  },
-  {
-    id: "8",
-    name: "Arun Verma",
-    course: "Artificial Intelligence",
-    matchDate: "Matched 1 week ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Deep Learning", "Computer Vision", "NLP"],
-    matchPercentage: 83,
-  },
-  {
-    id: "9",
-    name: "Neha Kapoor",
-    course: "Chemical Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Process Design", "Green Chemistry", "Research"],
-    matchPercentage: 82,
-  },
-  {
-    id: "10",
-    name: "Karthik Rajan",
-    course: "Aerospace Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Aerodynamics", "CAD", "Propulsion Systems"],
-    matchPercentage: 81,
-  },
-  {
-    id: "11",
-    name: "Divya Krishnan",
-    course: "Marine Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Ship Design", "Naval Architecture", "Marine Systems"],
-    matchPercentage: 80,
-  },
-  {
-    id: "12",
-    name: "Rohan Mehta",
-    course: "Software Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Full Stack", "DevOps", "Mobile Development"],
-    matchPercentage: 79,
-  },
-]
-
 export default function MatchesPage() {
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadMatches = async () => {
+      try {
+        setLoading(true);
+        const fetchedUsers = await fetchMatchedUsers(); // Fetch matched users from backend (dummy data for now)
+        const matchesWithImages: Match[] = await Promise.all(
+          fetchedUsers.map(async (user: any) => {
+            const imageUrl = await fetchUserImage(user.id);
+            // Assuming the backend returns 'name', 'course', 'interests' for matched users
+            // For now, let's use some placeholder data for these fields
+            return {
+              id: user.id.toString(),
+              name: user.username, // Using username as name for now
+              course: "Computer Science", // Placeholder
+              matchDate: "Matched recently", // Placeholder
+              image: imageUrl,
+              interests: ["AI", "Web Dev"], // Placeholder
+              matchPercentage: Math.floor(Math.random() * 20) + 80, // Random percentage for demo
+            };
+          })
+        );
+        setMatches(matchesWithImages);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMatches();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <p>Loading matches...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <p className="text-destructive">Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (matches.length === 0) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center p-4">
+        <Card className="glass-effect animate-bounce-in p-8 text-center">
+          <div className="mb-4 flex justify-center">
+            <div className="relative">
+              <Sparkles className="h-12 w-12 text-primary animate-pulse" />
+            </div>
+          </div>
+          <h2 className="mb-2 text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            No Matches Yet!
+          </h2>
+          <p className="text-muted-foreground">Keep swiping to find your study buddies!</p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto mb-20 mt-4 max-w-md space-y-6 p-4 md:mt-20">
       <div className="flex items-center justify-between">
@@ -203,5 +164,5 @@ export default function MatchesPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }

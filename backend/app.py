@@ -18,9 +18,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
-login_manager.login_view = 'login' # type: ignore
-socketio = SocketIO(app, cors_allowed_origins="*") # Allow all origins for development
-CORS(app) # Enable CORS for all routes
+login_manager.login_view = 'login'  # type: ignore
+socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins for development
+CORS(app)  # Enable CORS for all routes
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    """Return 401 JSON so the SPA can handle redirect to /login (avoids 405 from redirect to GET /login)."""
+    return jsonify({'message': 'Unauthorized', 'login_required': True}), 401
+
 
 @login_manager.user_loader
 def load_user(user_id):

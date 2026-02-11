@@ -4,11 +4,11 @@
 A modern web application designed to connect students for collaborative study sessions, knowledge sharing, and peer support. Built with React, Vite, and Tailwind CSS, it offers features like discovery, matching, messaging, and user profiles.
 
 ## Features
-- User Authentication (Implicit - assuming based on profile/messages)
-- Discovery: Find other students based on study interests.
-- Matching: Connect with compatible study partners.
-- Messaging: Communicate with matched study buddies, including a dedicated chat page.
-- User Profiles: Manage and view student profiles.
+- User Authentication: Secure user registration, login, and session management using a Flask backend.
+- Real-time Messaging: Instant message exchange between matched users via WebSockets.
+- Discovery: Dynamically find other students based on study interests from the backend.
+- Matching: Dynamically connect with compatible study partners from the backend.
+- User Profiles: Dynamically manage and view student profiles with fetched images.
 - Responsive Design: Optimized for various screen sizes (implied by `use-mobile` hook and general good practice).
 - Dark Mode: Toggle between light and dark themes.
 - Interactive UI: Utilizing `framer-motion` for animations and `shadcn/ui` (Radix UI) for accessible components.
@@ -26,6 +26,12 @@ A modern web application designed to connect students for collaborative study se
 - Lucide React (for icons)
 - Sonner (for toasts)
 - Recharts (for charts - although no specific chart page is identified, the dependency implies its usage)
+- Flask (Python Web Framework)
+- Flask-SQLAlchemy (ORM for database interactions with SQLite)
+- Flask-Login (User session management for Flask)
+- Flask-SocketIO (Real-time communication with WebSockets)
+- SQLite (Lightweight database)
+- socket.io-client (Frontend WebSocket client)
 
 ## Installation and Setup
 
@@ -66,7 +72,12 @@ The backend is built with Flask and provides authentication and real-time messag
     The backend API will be available at `http://localhost:5000` (or another port if 5000 is in use), and the SocketIO server will also run on this port. Make sure to keep the backend running for the frontend to communicate with it.
 
 ## Usage
-- Navigate through the application using the navbar.
-- Use the Discovery page to find potential study partners.
-- Connect with matches and use the Messages page to communicate.
-- Update your profile on the Profile page.
+1.  **Start the Backend**: Ensure the Flask backend is running (as per "Backend Setup and Usage" section).
+2.  **Access the Application**: Open your browser to `http://localhost:5173`.
+3.  **Register/Login**: You will be redirected to the login page. Register a new account or log in with existing credentials.
+4.  **Explore**:
+    *   Navigate through the application using the navbar.
+    *   Use the Discovery page to find potential study partners (data fetched dynamically).
+    *   Connect with matches on the Matches page (data fetched dynamically).
+    *   Use the Messages page and Chat page to communicate in real-time with matched buddies.
+    *   Update your profile on the Profile page (data fetched dynamically).
