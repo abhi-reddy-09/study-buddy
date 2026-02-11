@@ -1,15 +1,25 @@
-"use client"
-
 import { useState, useRef, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import Image from "next/image"
+import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Send, PaperclipIcon, Smile } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-// Sample data - in a real app, this would come from your API
-const chatData = {
+interface ChatMessage {
+  id: string
+  sender: string
+  content: string
+  timestamp: string
+}
+
+interface Chat {
+  id: string
+  name: string
+  image: string
+  messages: ChatMessage[]
+}
+
+const chatData: Record<string, Chat> = {
   "1": {
     id: "1",
     name: "Emma Wilson",
@@ -51,7 +61,7 @@ const chatData = {
         content: "How about we study algorithms together?",
         timestamp: new Date(Date.now() - 120000).toISOString(),
       },
-    ]
+    ],
   },
   "2": {
     id: "2",
@@ -88,48 +98,41 @@ const chatData = {
         content: "Sure, let's meet at the library tomorrow!",
         timestamp: new Date(Date.now() - 3600000).toISOString(),
       },
-    ]
-  }
+    ],
+  },
 }
 
 export default function ChatPage() {
-  const params = useParams()
-  const router = useRouter()
-  const chatId = params.chatId
+  const { chatId } = useParams<{ chatId: string }>()
+  const navigate = useNavigate()
   const [message, setMessage] = useState("")
-  const [chat, setChat] = useState(null)
+  const [chat, setChat] = useState<Chat | null>(null)
   const [loading, setLoading] = useState(true)
-  const messageEndRef = useRef(null)
+  const messageEndRef = useRef<HTMLDivElement>(null)
 
-  // Fetch chat data
   useEffect(() => {
-    // Simulate API call - in a real app, fetch from your backend
     const timer = setTimeout(() => {
-      if (chatData[chatId]) {
+      if (chatId && chatData[chatId]) {
         setChat(chatData[chatId])
       } else {
-        // Handle chat not found
-        router.push("/messages")
+        navigate("/messages")
       }
       setLoading(false)
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [chatId, router])
+  }, [chatId, navigate])
 
-  // Auto-scroll to bottom of messages
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [chat?.messages])
 
-  // Format timestamp
-  const formatMessageTime = (timestamp) => {
+  const formatMessageTime = (timestamp: string) => {
     const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
 
-  // Format date headers
-  const formatDateHeader = (timestamp) => {
+  const formatDateHeader = (timestamp: number) => {
     const date = new Date(timestamp)
     const today = new Date()
     const yesterday = new Date(today)
@@ -140,50 +143,42 @@ export default function ChatPage() {
     } else if (date.toDateString() === yesterday.toDateString()) {
       return "Yesterday"
     } else {
-      return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })
+      return date.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })
     }
   }
 
-  // Group messages by date
-  const groupMessagesByDate = (messages) => {
-    const groups = {}
-    
-    messages?.forEach(message => {
-      const date = new Date(message.timestamp).toDateString()
-      if (!groups[date]) {
-        groups[date] = []
-      }
-      groups[date].push(message)
+  const groupMessagesByDate = (messages: ChatMessage[] | undefined) => {
+    if (!messages) return []
+    const groups: Record<string, ChatMessage[]> = {}
+    messages.forEach((msg) => {
+      const date = new Date(msg.timestamp).toDateString()
+      if (!groups[date]) groups[date] = []
+      groups[date].push(msg)
     })
-    
-    return Object.entries(groups).map(([date, messages]) => ({
-      date,
-      timestamp: new Date(date).getTime(),
-      messages
-    })).sort((a, b) => a.timestamp - b.timestamp)
+    return Object.entries(groups)
+      .map(([date, msgs]) => ({
+        date,
+        timestamp: new Date(date).getTime(),
+        messages: msgs,
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp)
   }
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!message.trim()) return
-    
-    // Add new message to chat
-    const newMessage = {
+    if (!message.trim() || !chat) return
+
+    const newMessage: ChatMessage = {
       id: `m${chat.messages.length + 1}`,
       sender: "me",
       content: message,
       timestamp: new Date().toISOString(),
     }
-    
-    setChat(prev => ({
-      ...prev,
-      messages: [...prev.messages, newMessage]
-    }))
-    
+
+    setChat((prev) =>
+      prev ? { ...prev, messages: [...prev.messages, newMessage] } : null
+    )
     setMessage("")
-    
-    // In a real app, you would send this message to your backend
   }
 
   if (loading) {
@@ -194,24 +189,25 @@ export default function ChatPage() {
     )
   }
 
-  const messageGroups = groupMessagesByDate(chat?.messages)
+  if (!chat) return null
+
+  const messageGroups = groupMessagesByDate(chat.messages)
 
   return (
     <div className="flex h-screen flex-col">
-      {/* Header */}
       <header className="border-b bg-background p-4">
         <div className="mx-auto flex max-w-4xl items-center">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/messages")}
+            onClick={() => navigate("/messages")}
             className="mr-2"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          
+
           <div className="flex flex-1 items-center gap-3">
-            <Image
+            <img
               src={chat.image}
               alt={chat.name}
               width={40}
@@ -226,7 +222,6 @@ export default function ChatPage() {
         </div>
       </header>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto bg-accent/10 p-4">
         <div className="mx-auto max-w-2xl space-y-6">
           {messageGroups.map((group) => (
@@ -249,7 +244,7 @@ export default function ChatPage() {
                   <div className="flex max-w-[75%] flex-col gap-1">
                     {msg.sender !== "me" && (
                       <div className="flex items-center gap-2">
-                        <Image
+                        <img
                           src={chat.image}
                           alt={chat.name}
                           width={24}
@@ -281,7 +276,6 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Message Input */}
       <footer className="border-t bg-background p-4">
         <form
           onSubmit={handleSendMessage}
@@ -290,23 +284,19 @@ export default function ChatPage() {
           <Button type="button" variant="ghost" size="icon">
             <PaperclipIcon className="h-5 w-5" />
           </Button>
-          
+
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type a message..."
             className="flex-1"
           />
-          
+
           <Button type="button" variant="ghost" size="icon">
             <Smile className="h-5 w-5" />
           </Button>
-          
-          <Button
-            type="submit"
-            size="icon"
-            disabled={!message.trim()}
-          >
+
+          <Button type="submit" size="icon" disabled={!message.trim()}>
             <Send className="h-5 w-5" />
           </Button>
         </form>
