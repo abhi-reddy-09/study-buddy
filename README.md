@@ -72,12 +72,13 @@ The backend is built with Flask and provides authentication and real-time messag
     The backend API will be available at `http://localhost:5000` (or another port if 5000 is in use), and the SocketIO server will also run on this port. Make sure to keep the backend running for the frontend to communicate with it.
 
 ## Usage
+
 1.  **Start the Backend**: Ensure the Flask backend is running (as per "Backend Setup and Usage" section).
 2.  **Access the Application**: Open your browser to `http://localhost:5173`.
 3.  **Register/Login**: You will be redirected to the login page. Register a new account or log in with existing credentials.
 4.  **Explore**:
-    *   Navigate through the application using the navbar.
-    *   Use the Discovery page to find potential study partners (data fetched dynamically).
-    *   Connect with matches on the Matches page (data fetched dynamically).
-    *   Use the Messages page and Chat page to communicate in real-time with matched buddies.
-    *   Update your profile on the Profile page (data fetched dynamically).
+    - Navigate through the application using the navbar.
+    - Use the Discovery page to find potential study partners (data fetched dynamically).
+    - Connect with matches on the Matches page (data fetched dynamically).
+    - Use the Messages page and Chat page to communicate in real-time with matched buddies.
+    - Update your profile on the Profile page (data fetched dynamically).
