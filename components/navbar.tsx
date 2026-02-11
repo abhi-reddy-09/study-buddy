@@ -1,6 +1,4 @@
-"use client"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { Home, Users, MessageSquare, User } from "lucide-react"
 import { MotionNavIndicator } from "./motion-nav-indicator"
@@ -33,7 +31,7 @@ const routes = [
 ]
 
 export function Navbar() {
-  const pathname = usePathname()
+  const { pathname } = useLocation()
 
   return (
     <nav className="fixed bottom-0 z-50 w-full border-t bg-background/80 backdrop-blur-lg backdrop-saturate-150 supports-[backdrop-filter]:bg-background/60 md:top-0 md:bottom-auto md:border-b md:border-t-0">
@@ -41,7 +39,7 @@ export function Navbar() {
         {routes.map((route) => (
           <Link
             key={route.href}
-            href={route.href}
+            to={route.href}
             className="relative flex flex-col items-center gap-1 transition-colors hover:text-primary"
           >
             {pathname === route.href && <MotionNavIndicator />}

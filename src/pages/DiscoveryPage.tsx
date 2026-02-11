@@ -1,11 +1,8 @@
-"use client"
-
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Heart, X, Sparkles, GraduationCap, MapPin, Star } from "lucide-react"
-import Image from "next/image"
 import { MotionCard } from "@/components/motion-card"
 
 interface StudyProfile {
@@ -160,7 +157,7 @@ export default function DiscoveryPage() {
       <MotionCard id={currentProfile.id} swipingDirection={swipingDirection}>
         <Card className="profile-card overflow-hidden">
           <div className="relative">
-            <Image
+            <img
               src={currentProfile.image || "/placeholder.svg"}
               alt={currentProfile.name}
               width={300}
@@ -215,4 +212,3 @@ export default function DiscoveryPage() {
     </div>
   )
 }
-
