@@ -1,11 +1,8 @@
-"use client"
-
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MessageCircle, Clock, GraduationCap, Sparkles } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 
 interface Match {
@@ -153,7 +150,7 @@ export default function MatchesPage() {
               <div className="flex items-start gap-4">
                 <div className="relative">
                   <div className="relative">
-                    <Image
+                    <img
                       src={match.image || "/placeholder.svg"}
                       alt={match.name}
                       width={80}
@@ -181,7 +178,7 @@ export default function MatchesPage() {
                         <span>{match.matchDate}</span>
                       </div>
                     </div>
-                    <Link href={`/messages/${match.id}`}>
+                    <Link to={`/messages/${match.id}`}>
                       <Button size="sm" className="gradient-button transition-transform group-hover:scale-105">
                         <MessageCircle className="mr-2 h-4 w-4" />
                         Message
@@ -208,4 +205,3 @@ export default function MatchesPage() {
     </div>
   )
 }
-

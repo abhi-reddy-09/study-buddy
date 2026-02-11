@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -7,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Camera, Plus, X } from "lucide-react"
-import Image from "next/image"
 
 interface UserProfile {
   name: string
@@ -55,7 +52,7 @@ export default function ProfilePage() {
       <Card className="p-6">
         <div className="mb-6 text-center">
           <div className="relative mx-auto mb-4 h-32 w-32">
-            <Image
+            <img
               src={profile.image || "/placeholder.svg"}
               alt={profile.name}
               width={128}
@@ -161,4 +158,3 @@ export default function ProfilePage() {
     </div>
   )
 }
-

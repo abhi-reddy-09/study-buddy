@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import Link from "next/link"
+import { Link } from "react-router-dom"
 import { Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -45,13 +44,13 @@ export default function MessagesPage() {
 
       <div className="space-y-3">
         {chats.map((chat) => (
-          <Link key={chat.id} href={`/messages/${chat.id}`}>
+          <Link key={chat.id} to={`/messages/${chat.id}`}>
             <Card
               className={cn("p-4 transition-all hover:bg-accent/5", chat.unread && "border-primary/50 bg-primary/5")}
             >
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <Image
+                  <img
                     src={chat.image || "/placeholder.svg"}
                     alt={chat.name}
                     width={56}
@@ -82,4 +81,3 @@ export default function MessagesPage() {
     </div>
   )
 }
-
