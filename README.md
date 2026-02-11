@@ -44,6 +44,27 @@ A modern web application designed to connect students for collaborative study se
     ```
     The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
 
+## Backend Setup and Usage
+
+The backend is built with Flask and provides authentication and real-time messaging capabilities.
+
+1.  **Navigate to the backend directory:**
+    ```bash
+    cd backend
+    ```
+2.  **Install Python dependencies (if not already done):**
+    ```bash
+    python -m venv venv
+    .\venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+3.  **Run the Flask backend:**
+    ```bash
+    .\venv\Scripts\activate
+    python app.py
+    ```
+    The backend API will be available at `http://localhost:5000` (or another port if 5000 is in use), and the SocketIO server will also run on this port. Make sure to keep the backend running for the frontend to communicate with it.
+
 ## Usage
 - Navigate through the application using the navbar.
 - Use the Discovery page to find potential study partners.
