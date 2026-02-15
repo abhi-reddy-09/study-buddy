@@ -19,7 +19,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
 
-          <Route path="/discovery" element={<ProtectedRoute><DiscoveryPage /></ProtectedRoute>} />
+          <Route path="/discovery" element={<DiscoveryPage />} />
           <Route path="/matches" element={<ProtectedRoute><MatchesPage /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
           <Route path="/messages/:chatId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
