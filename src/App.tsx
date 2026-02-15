@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom"
 import { Navbar } from "@/components/navbar"
+import { ProtectedRoute } from "@/src/components/ProtectedRoute"
 import LandingPage from "@/src/pages/LandingPage"
 import DiscoveryPage from "@/src/pages/DiscoveryPage"
 import MatchesPage from "@/src/pages/MatchesPage"
@@ -17,11 +18,12 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/discovery" element={<DiscoveryPage />} />
-          <Route path="/matches" element={<MatchesPage />} />
-          <Route path="/messages" element={<MessagesPage />} />
-          <Route path="/messages/:chatId" element={<ChatPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+
+          <Route path="/discovery" element={<ProtectedRoute><DiscoveryPage /></ProtectedRoute>} />
+          <Route path="/matches" element={<ProtectedRoute><MatchesPage /></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+          <Route path="/messages/:chatId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

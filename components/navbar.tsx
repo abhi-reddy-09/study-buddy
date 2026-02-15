@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { Home, Users, MessageSquare, User } from "lucide-react"
+import { Home, Users, MessageSquare, User, LogIn, LogOut } from "lucide-react"
 import { MotionNavIndicator } from "./motion-nav-indicator"
+import { useAuth } from "@/src/contexts/AuthContext"
+import { Button } from "./ui/button"
 
 const routes = [
   {
@@ -32,6 +34,7 @@ const routes = [
 
 export function Navbar() {
   const { pathname } = useLocation()
+  const { isAuthenticated, login, logout } = useAuth()
 
   return (
     <nav className="fixed bottom-0 z-50 w-full border-t bg-background/80 backdrop-blur-lg backdrop-saturate-150 supports-[backdrop-filter]:bg-background/60 md:top-0 md:bottom-auto md:border-b md:border-t-0">
@@ -54,6 +57,17 @@ export function Navbar() {
             </span>
           </Link>
         ))}
+        {isAuthenticated ? (
+          <Button variant="ghost" size="icon" onClick={() => logout()} className="flex flex-col gap-1" aria-label="Log out">
+            <LogOut className="h-5 w-5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Logout</span>
+          </Button>
+        ) : (
+          <Button variant="ghost" size="icon" onClick={() => login()} className="flex flex-col gap-1" aria-label="Log in">
+            <LogIn className="h-5 w-5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Login</span>
+          </Button>
+        )}
       </div>
     </nav>
   )
