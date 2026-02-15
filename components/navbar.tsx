@@ -7,7 +7,7 @@ const routes = [
   {
     label: "Discover",
     icon: Home,
-    href: "/",
+    href: "/discovery",
     color: "text-violet-500",
   },
   {

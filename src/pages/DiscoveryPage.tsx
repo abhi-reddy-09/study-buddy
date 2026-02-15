@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Heart, X, Sparkles, GraduationCap, MapPin, Star } from "lucide-react"
 import { MotionCard } from "@/components/motion-card"
+import { gsap, ScrollTrigger } from "@/src/lib/gsap"
 
 interface StudyProfile {
   id: string
@@ -120,8 +121,28 @@ const profiles: StudyProfile[] = [
 ]
 
 export default function DiscoveryPage() {
+  const rootRef = useRef<HTMLDivElement | null>(null)
   const [currentProfiles, setCurrentProfiles] = useState(profiles)
   const [swipingDirection, setSwipingDirection] = useState<"left" | "right" | null>(null)
+
+  useLayoutEffect(() => {
+    if (!rootRef.current) return
+
+    const ctx = gsap.context(() => {
+      gsap.from("[data-discovery-card]", {
+        opacity: 0,
+        y: 40,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: rootRef.current,
+          start: "top 80%",
+        },
+      })
+    }, rootRef)
+
+    return () => ctx.revert()
+  }, [])
 
   const handleSwipe = (direction: "left" | "right") => {
     setSwipingDirection(direction)
@@ -153,9 +174,12 @@ export default function DiscoveryPage() {
   const currentProfile = currentProfiles[0]
 
   return (
-    <div className="mx-auto mb-20 mt-4 max-w-md space-y-4 p-4 md:mt-20">
+    <div
+      ref={rootRef}
+      className="mx-auto mb-20 mt-4 max-w-md space-y-4 p-4 md:mt-20"
+    >
       <MotionCard id={currentProfile.id} swipingDirection={swipingDirection}>
-        <Card className="profile-card overflow-hidden">
+        <Card className="profile-card overflow-hidden" data-discovery-card>
           <div className="relative">
             <img
               src={currentProfile.image || "/placeholder.svg"}
