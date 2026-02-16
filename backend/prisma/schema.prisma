@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String    
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  profile          Profile?  @relation("UserProfile")  
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  initiatedMatches Match[]   @relation("Initiator")
+  receivedMatches  Match[]   @relation("Receiver")
+}
+
+model Profile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation("UserProfile", fields: [userId], references: [id])  
+
+  firstName   String
+  lastName    String
+  major       String?
+  bio         String?   @db.Text
+  studyHabits String?   @db.Text
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  initiatorId String
+  receiverId  String
+  initiator   User     @relation("Initiator", fields: [initiatorId], references: [id])
+  receiver    User     @relation("Receiver", fields: [receiverId], references: [id])
+
+  status      String   @default("PENDING")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([initiatorId, receiverId])
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  content     String    @db.Text
+  
+  senderId    String
+  receiverId  String
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiver    User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  createdAt   DateTime  @default(now())
+}
