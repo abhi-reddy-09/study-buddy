@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../server';
+import { prisma } from '../db';
 
 const router = Router();
 
@@ -22,7 +22,6 @@ router.post('/register', async (req: Request, res: Response) => {
     });
     res.status(201).json({ user: { id: user.id, email: user.email, profile: user.profile } });
   } catch (error) {
-    console.log('Register error:', error);
     res.status(400).json({ error: 'User already exists or invalid data' });
   }
 });
@@ -38,7 +37,6 @@ router.post('/login', async (req: Request, res: Response) => {
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
     res.json({ token, user: { id: user.id, email: user.email, profile: user.profile } });
   } catch (error) {
-    console.log('Register error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
 });
