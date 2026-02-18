@@ -1,207 +1,171 @@
-import { Card } from "@/components/ui/card"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MessageCircle, Clock, GraduationCap, Sparkles } from "lucide-react"
+import { MessageCircle, GraduationCap, Check, X, Loader2 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
+import { useAuth } from "@/src/contexts/AuthContext"
+import api from "@/src/lib/api"
+
+interface MatchProfile {
+  id: string
+  profile: { firstName: string; lastName: string; major?: string | null } | null
+}
 
 interface Match {
   id: string
-  name: string
-  course: string
-  matchDate: string
-  image: string
-  interests: string[]
-  matchPercentage: number
+  initiatorId: string
+  receiverId: string
+  status: string
+  createdAt: string
+  initiator: MatchProfile
+  receiver: MatchProfile
 }
 
-const matches: Match[] = [
-  {
-    id: "1",
-    name: "Priya Sharma",
-    course: "Biotechnology",
-    matchDate: "Matched 2 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Genetics", "Bioinformatics", "Healthcare"],
-    matchPercentage: 95,
-  },
-  {
-    id: "2",
-    name: "Arjun Das",
-    course: "Electronics Engineering",
-    matchDate: "Matched 3 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["IoT", "Embedded Systems", "Robotics"],
-    matchPercentage: 92,
-  },
-  {
-    id: "3",
-    name: "Kavya Reddy",
-    course: "Computer Science",
-    matchDate: "Matched 4 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["AI/ML", "Web Development", "Cloud Computing"],
-    matchPercentage: 89,
-  },
-  {
-    id: "4",
-    name: "Rahul Kumar",
-    course: "Mechanical Engineering",
-    matchDate: "Matched 5 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["CAD Design", "3D Printing", "Automation"],
-    matchPercentage: 88,
-  },
-  {
-    id: "5",
-    name: "Ananya Singh",
-    course: "Data Science",
-    matchDate: "Matched 6 days ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Big Data", "Python", "Data Visualization"],
-    matchPercentage: 87,
-  },
-  {
-    id: "6",
-    name: "Vikram Patel",
-    course: "Civil Engineering",
-    matchDate: "Matched 1 week ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Structural Design", "AutoCAD", "Green Building"],
-    matchPercentage: 85,
-  },
-  {
-    id: "7",
-    name: "Shreya Gupta",
-    course: "Information Technology",
-    matchDate: "Matched 1 week ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Cybersecurity", "Network Design", "Cloud"],
-    matchPercentage: 84,
-  },
-  {
-    id: "8",
-    name: "Arun Verma",
-    course: "Artificial Intelligence",
-    matchDate: "Matched 1 week ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Deep Learning", "Computer Vision", "NLP"],
-    matchPercentage: 83,
-  },
-  {
-    id: "9",
-    name: "Neha Kapoor",
-    course: "Chemical Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Process Design", "Green Chemistry", "Research"],
-    matchPercentage: 82,
-  },
-  {
-    id: "10",
-    name: "Karthik Rajan",
-    course: "Aerospace Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Aerodynamics", "CAD", "Propulsion Systems"],
-    matchPercentage: 81,
-  },
-  {
-    id: "11",
-    name: "Divya Krishnan",
-    course: "Marine Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Ship Design", "Naval Architecture", "Marine Systems"],
-    matchPercentage: 80,
-  },
-  {
-    id: "12",
-    name: "Rohan Mehta",
-    course: "Software Engineering",
-    matchDate: "Matched 2 weeks ago",
-    image: "/placeholder.svg?height=100&width=100",
-    interests: ["Full Stack", "DevOps", "Mobile Development"],
-    matchPercentage: 79,
-  },
-]
+type Tab = "incoming" | "sent" | "accepted"
 
 export default function MatchesPage() {
-  return (
-    <div className="mx-auto mb-20 mt-4 max-w-md space-y-6 p-4 md:mt-20">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-          Your Matches
-        </h1>
-        <Badge variant="secondary" className="gradient-badge rounded-full px-3">
-          {matches.length} matches
-        </Badge>
-      </div>
+  const { user } = useAuth()
+  const [matches, setMatches] = useState<Match[]>([])
+  const [loading, setLoading] = useState(true)
+  const [processingId, setProcessingId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<Tab>("incoming")
 
-      <div className="space-y-4">
-        {matches.map((match, index) => (
-          <motion.div
-            key={match.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
+  useEffect(() => {
+    api.get("/matches")
+      .then((data) => setMatches(data))
+      .catch((err) => toast.error(err.message || "Failed to load matches"))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handle = async (matchId: string, action: "accept" | "reject") => {
+    setProcessingId(matchId)
+    try {
+      await api.put(`/matches/${matchId}/${action}`)
+      setMatches((prev) => prev.map((m) =>
+        m.id === matchId ? { ...m, status: action === "accept" ? "ACCEPTED" : "REJECTED" } : m
+      ))
+      toast.success(action === "accept" ? "Match accepted!" : "Match rejected")
+    } catch (err: any) {
+      toast.error(err.message || `Failed to ${action}`)
+    } finally {
+      setProcessingId(null)
+    }
+  }
+
+  const getOther = (m: Match) => (m.initiatorId === user?.id ? m.receiver : m.initiator)
+
+  const incoming = matches.filter((m) => m.status === "PENDING" && m.receiverId === user?.id)
+  const sent = matches.filter((m) => m.status === "PENDING" && m.initiatorId === user?.id)
+  const accepted = matches.filter((m) => m.status === "ACCEPTED")
+
+  const tabs: { key: Tab; label: string; count: number }[] = [
+    { key: "incoming", label: "Incoming", count: incoming.length },
+    { key: "sent", label: "Sent", count: sent.length },
+    { key: "accepted", label: "Accepted", count: accepted.length },
+  ]
+
+  const list = activeTab === "incoming" ? incoming : activeTab === "sent" ? sent : accepted
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-600" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="mx-auto max-w-xl px-4 py-8">
+      <h1 className="mb-1 text-lg font-semibold">Matches</h1>
+      <p className="mb-6 text-sm text-gray-600">Manage your study buddy connections</p>
+
+      {/* Tabs */}
+      <div className="mb-5 flex gap-1 rounded-lg border border-gray-200 bg-white p-1">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setActiveTab(t.key)}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-2 text-sm font-medium transition-colors ${activeTab === t.key
+              ? "bg-gray-100 text-gray-900"
+              : "text-gray-600 hover:text-gray-900"
+            }`}
           >
-            <Card className="group overflow-hidden p-4 transition-all hover:bg-accent/5 card-hover">
-              <div className="flex items-start gap-4">
-                <div className="relative">
-                  <div className="relative">
-                    <img
-                      src={match.image || "/placeholder.svg"}
-                      alt={match.name}
-                      width={80}
-                      height={80}
-                      className="rounded-xl object-cover"
-                    />
-                    <div className="absolute -right-1 -top-1 flex items-center justify-center h-6 w-6 rounded-full gradient-button">
-                      <Sparkles className="h-3 w-3 text-white" />
-                    </div>
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 h-6 px-2 rounded-full gradient-button flex items-center justify-center text-xs text-white font-medium">
-                    {match.matchPercentage}%
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h2 className="text-xl font-semibold">{match.name}</h2>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <GraduationCap className="h-4 w-4 text-secondary" />
-                        <span className="text-sm">{match.course}</span>
-                      </div>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{match.matchDate}</span>
-                      </div>
-                    </div>
-                    <Link to={`/messages/${match.id}`}>
-                      <Button size="sm" className="gradient-button transition-transform group-hover:scale-105">
-                        <MessageCircle className="mr-2 h-4 w-4" />
-                        Message
-                      </Button>
-                    </Link>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {match.interests.map((interest) => (
-                      <Badge
-                        key={interest}
-                        variant="secondary"
-                        className="gradient-badge rounded-full px-2 py-0 text-xs"
-                      >
-                        {interest}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
+            {t.label}
+            {t.count > 0 && (
+              <span className={`flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold ${activeTab === t.key
+                ? "bg-gray-900 text-white"
+                : "bg-gray-200 text-gray-600"
+              }`}>
+                {t.count}
+              </span>
+            )}
+          </button>
         ))}
       </div>
+
+      {/* List */}
+      {list.length === 0 ? (
+        <div className="flex flex-col items-center rounded-lg border border-dashed border-gray-200 py-12 text-center">
+          <p className="text-sm text-gray-600">No {activeTab} matches yet</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {list.map((match, i) => {
+            const other = getOther(match)
+            const name = other.profile ? `${other.profile.firstName} ${other.profile.lastName}` : "Unknown"
+            const initial = (other.profile?.firstName?.[0] || "?").toUpperCase()
+            const date = new Date(match.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+
+            return (
+              <motion.div
+                key={match.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+              >
+                <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:bg-gray-50">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold">
+                    {initial}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{name}</p>
+                    <p className="flex items-center gap-1.5 text-sm text-gray-600">
+                      {other.profile?.major && <><GraduationCap className="h-3 w-3" /> {other.profile.major} · </>}
+                      {date}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {activeTab === "incoming" && (
+                      <>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-600 hover:text-red-600"
+                          onClick={() => handle(match.id, "reject")} disabled={processingId === match.id}>
+                          {processingId === match.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-4 w-4" />}
+                        </Button>
+                        <Button size="icon" className="h-8 w-8"
+                          onClick={() => handle(match.id, "accept")} disabled={processingId === match.id}>
+                          {processingId === match.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-4 w-4" />}
+                        </Button>
+                      </>
+                    )}
+                    {activeTab === "sent" && (
+                      <Badge variant="secondary" className="text-[10px]">Pending</Badge>
+                    )}
+                    {activeTab === "accepted" && (
+                      <Link to={`/messages/${other.id}`}>
+                        <Button size="sm" variant="ghost" className="gap-1 text-xs">
+                          <MessageCircle className="h-3.5 w-3.5" /> Chat
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

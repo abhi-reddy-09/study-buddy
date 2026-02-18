@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -7,7 +7,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-gray-600">Loading...</p>
       </div>
     );
   }

@@ -184,7 +184,7 @@ export default function ChatPage() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-800"></div>
       </div>
     )
   }
@@ -195,7 +195,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <header className="border-b bg-background p-4">
+      <header className="border-b border-gray-200 bg-white p-4">
         <div className="mx-auto flex max-w-4xl items-center">
           <Button
             variant="ghost"
@@ -216,19 +216,19 @@ export default function ChatPage() {
             />
             <div>
               <h2 className="font-semibold">{chat.name}</h2>
-              <p className="text-xs text-muted-foreground">Online</p>
+              <p className="text-xs text-gray-600">Online</p>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto bg-accent/10 p-4">
+      <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
         <div className="mx-auto max-w-2xl space-y-6">
           {messageGroups.map((group) => (
             <div key={group.date} className="space-y-4">
               <div className="relative flex justify-center">
-                <span className="absolute inset-x-0 top-1/2 h-px bg-border"></span>
-                <span className="relative bg-accent/10 px-2 text-xs text-muted-foreground">
+                <span className="absolute inset-x-0 top-1/2 h-px bg-gray-200"></span>
+                <span className="relative bg-gray-50 px-2 text-xs text-gray-600">
                   {formatDateHeader(group.timestamp)}
                 </span>
               </div>
@@ -258,13 +258,13 @@ export default function ChatPage() {
                       className={cn(
                         "rounded-lg px-4 py-2",
                         msg.sender === "me"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-accent"
+                          ? "bg-gray-800 text-white"
+                          : "bg-gray-100"
                       )}
                     >
                       <p>{msg.content}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-gray-600">
                       {formatMessageTime(msg.timestamp)}
                     </span>
                   </div>
@@ -276,7 +276,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <footer className="border-t bg-background p-4">
+      <footer className="border-t border-gray-200 bg-white p-4">
         <form
           onSubmit={handleSendMessage}
           className="mx-auto flex max-w-4xl items-center gap-2"

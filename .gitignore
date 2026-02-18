@@ -1,11 +1,5 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-# Ignore node_modules directories in all subfolders
 node_modules/
 
-# build/output directories
-# Ignore build outputs in all subfolders
 dist/
 build/
 out/
@@ -30,3 +24,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+bugs

@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import api from "@/src/lib/api"
 
 export interface User {
   id: string
@@ -21,46 +22,51 @@ interface AuthContextValue {
   login: (data: { email: string; password: string }) => Promise<void>
   register: (data: { email: string; password: string; firstName: string; lastName: string }) => Promise<void>
   logout: () => void
+  setUser: (user: User) => void
 }
-
-const API_URL = "http://localhost:5000"
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(null)
-  const [loading] = useState(false)
+  const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  const login = useCallback(async (data: { email: string; password: string }) => {
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error || "Login failed")
+  // On mount: restore auth state from localStorage token
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token")
+    if (savedToken) {
+      setToken(savedToken)
+      api.get("/auth/me")
+        .then((data) => {
+          setUser(data.user)
+        })
+        .catch(() => {
+          // Token is invalid/expired — clean up
+          localStorage.removeItem("token")
+          setToken(null)
+          setUser(null)
+        })
+        .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
     }
-    const result = await res.json()
+  }, [])
+
+  const login = useCallback(async (data: { email: string; password: string }) => {
+    const result = await api.post("/auth/login", data)
+    localStorage.setItem("token", result.token)
     setToken(result.token)
     setUser(result.user)
   }, [])
 
   const register = useCallback(async (data: { email: string; password: string; firstName: string; lastName: string }) => {
-    const res = await fetch(`${API_URL}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error || "Registration failed")
-    }
+    await api.post("/auth/register", data)
   }, [])
 
   const logout = useCallback(() => {
+    localStorage.removeItem("token")
     setUser(null)
     setToken(null)
     navigate("/")
@@ -74,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     logout,
+    setUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -36,8 +36,8 @@ export default function MessagesPage() {
   return (
     <div className="mx-auto mb-20 mt-4 max-w-md space-y-6 p-4 md:mt-20">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Messages</h1>
-        <Badge variant="secondary" className="rounded-full">
+        <h1 className="text-2xl font-bold">Messages</h1>
+        <Badge variant="secondary">
           {chats.filter((chat) => chat.unread).length} unread
         </Badge>
       </div>
@@ -46,7 +46,7 @@ export default function MessagesPage() {
         {chats.map((chat) => (
           <Link key={chat.id} to={`/messages/${chat.id}`}>
             <Card
-              className={cn("p-4 transition-all hover:bg-accent/5", chat.unread && "border-primary/50 bg-primary/5")}
+              className={cn("p-4 transition-all hover:bg-gray-50", chat.unread && "border-gray-400 bg-gray-50")}
             >
               <div className="flex items-center gap-4">
                 <div className="relative">
@@ -58,18 +58,18 @@ export default function MessagesPage() {
                     className="rounded-full object-cover"
                   />
                   {chat.unread && (
-                    <span className="absolute -right-1 -top-1 h-4 w-4 rounded-full border-2 border-background bg-primary" />
+                    <span className="absolute -right-1 -top-1 h-4 w-4 rounded-full border-2 border-white bg-gray-800" />
                   )}
                 </div>
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center justify-between">
-                    <h2 className={cn("font-semibold", chat.unread && "text-primary")}>{chat.name}</h2>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <h2 className={cn("font-semibold", chat.unread && "text-gray-900")}>{chat.name}</h2>
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
                       <Clock className="h-3 w-3" />
                       <span>{chat.time}</span>
                     </div>
                   </div>
-                  <p className={cn("text-sm", chat.unread ? "font-medium text-foreground" : "text-muted-foreground")}>
+                  <p className={cn("text-sm", chat.unread ? "font-medium text-gray-900" : "text-gray-600")}>
                     {chat.lastMessage}
                   </p>
                 </div>
