@@ -9,7 +9,10 @@
 * 🟢 You can import this file directly.
 */
 
+export const MatchStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type MatchStatus = (typeof MatchStatus)[keyof typeof MatchStatus]

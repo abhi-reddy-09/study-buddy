@@ -3,6 +3,7 @@ import { app } from '../server';
 import { prisma } from '../db';
 import { User, Match } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { expectMatchItemShape, expectErrorShape } from './testContracts';
 
 describe('Matches Routes', () => {
   let user1: User;
@@ -28,9 +29,9 @@ describe('Matches Routes', () => {
       },
     });
     const res1 = await request(app).post('/auth/login').send({ email: 'match1@example.com', password: 'password123' });
-    token1 = res1.body.token;
+    token1 = res1.body.accessToken;
     const res2 = await request(app).post('/auth/login').send({ email: 'match2@example.com', password: 'password123' });
-    token2 = res2.body.token;
+    token2 = res2.body.accessToken;
   });
 
   describe('POST /matches', () => {
@@ -39,11 +40,47 @@ describe('Matches Routes', () => {
         .post('/matches')
         .set('Authorization', `Bearer ${token1}`)
         .send({ receiverId: user2.id });
-      
+
       expect(res.statusCode).toEqual(201);
+      expectMatchItemShape(res.body);
       expect(res.body.initiatorId).toBe(user1.id);
       expect(res.body.receiverId).toBe(user2.id);
       expect(res.body.status).toBe('PENDING');
+    });
+
+    it('should return 401 without token', async () => {
+      const res = await request(app)
+        .post('/matches')
+        .send({ receiverId: user2.id });
+      expect(res.statusCode).toEqual(401);
+      expectErrorShape(res.body);
+    });
+
+    it('should return 400 with invalid token', async () => {
+      const res = await request(app)
+        .post('/matches')
+        .set('Authorization', 'Bearer invalidtoken')
+        .send({ receiverId: user2.id });
+      expect(res.statusCode).toEqual(400);
+      expectErrorShape(res.body);
+    });
+
+    it('should return 400 when receiverId is missing', async () => {
+      const res = await request(app)
+        .post('/matches')
+        .set('Authorization', `Bearer ${token1}`)
+        .send({});
+      expect(res.statusCode).toEqual(400);
+      expectErrorShape(res.body);
+    });
+
+    it('should return 400 when receiverId is not a valid cuid', async () => {
+      const res = await request(app)
+        .post('/matches')
+        .set('Authorization', `Bearer ${token1}`)
+        .send({ receiverId: 'not-a-cuid' });
+      expect(res.statusCode).toEqual(400);
+      expectErrorShape(res.body);
     });
 
     it('should not allow a user to match with themselves', async () => {
@@ -76,7 +113,14 @@ describe('Matches Routes', () => {
       expect(res.statusCode).toEqual(200);
       expect(res.body).toBeInstanceOf(Array);
       expect(res.body.length).toBe(1);
+      expectMatchItemShape(res.body[0]);
       expect(res.body[0].id).toBe(match.id);
+    });
+
+    it('should return 401 without token', async () => {
+      const res = await request(app).get('/matches');
+      expect(res.statusCode).toEqual(401);
+      expectErrorShape(res.body);
     });
   });
 

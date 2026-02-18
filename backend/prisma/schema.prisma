@@ -7,18 +7,39 @@ datasource db {
   provider = "mysql"
 }
 
+enum MatchStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id        String    @id @default(cuid())
   email     String    @unique
   password  String    
+  role      String    @default("USER")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  profile          Profile?  @relation("UserProfile")  
-  sentMessages     Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
-  initiatedMatches Match[]   @relation("Initiator")
-  receivedMatches  Match[]   @relation("Receiver")
+  profile          Profile?       @relation("UserProfile")
+  refreshTokens    RefreshToken[]
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  initiatedMatches Match[]        @relation("Initiator")
+  receivedMatches  Match[]       @relation("Receiver")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
 }
 
 model Profile {
@@ -37,18 +58,19 @@ model Profile {
 }
 
 model Match {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   initiatorId String
   receiverId  String
-  initiator   User     @relation("Initiator", fields: [initiatorId], references: [id])
-  receiver    User     @relation("Receiver", fields: [receiverId], references: [id])
+  initiator   User        @relation("Initiator", fields: [initiatorId], references: [id])
+  receiver    User        @relation("Receiver", fields: [receiverId], references: [id])
 
-  status      String   @default("PENDING")
+  status      MatchStatus @default(PENDING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([initiatorId, receiverId])
+  @@index([status])
 }
 
 model Message {

@@ -1,9 +1,18 @@
-node_modules
-# Keep environment variables out of version control
+# Dependencies
+node_modules/
+
+# Environment
 .env
 
-/src/generated/prisma
+# Prisma generated client
+generated/
 
+# Tests (excluded from version control)
+*.test.ts
+*.spec.ts
+test-results/
+coverage/
+
+# Seed scripts (local use)
 seed.mjs
-
 seed.ts

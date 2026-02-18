@@ -31,6 +31,7 @@ This is a **monorepo** with three directories:
 
 - **backend/** -- Express API server with Prisma ORM and MariaDB
 - **frontend/** -- React single-page application built with Vite
+- **bugs/** -- Bug tracking and known issues
 - **shared/** -- Shared TypeScript types (work in progress)
 
 ### Backend
@@ -42,7 +43,9 @@ This is a **monorepo** with three directories:
 | ORM          | Prisma 7 (with MariaDB adapter)     |
 | Database     | MariaDB / MySQL                     |
 | Auth         | JWT (jsonwebtoken) + bcrypt         |
-| Testing      | Jest + ts-jest + Supertest          |
+| Validation   | Zod schemas per route               |
+| Security     | Helmet, CORS, rate limiting (auth brute-force protection) |
+| Logging      | Request logging with trace IDs      |
 | Dev Server   | Nodemon + ts-node                   |
 
 ### Frontend
@@ -109,7 +112,10 @@ The app uses four core models managed by Prisma:
 
 | Method | Route    | Description                 | Auth |
 | ------ | -------- | --------------------------- | ---- |
-| GET    | `/`      | Health check                | No   |
+| GET    | `/`      | API info                    | No   |
+| GET    | `/health`| Liveness (process alive)    | No   |
+| GET    | `/ready` | Readiness (DB check); 503 if DB down | No   |
+| GET    | `/metrics` | Prometheus metrics         | No   |
 | GET    | `/users` | List all users with profiles| Yes  |
 
 ---
@@ -150,24 +156,17 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend/` directory (see `.env.example` for reference):
+Create a `.env` file in the `backend/` directory (copy from `.env.example`):
 
 ```env
-# Database connection for Prisma migrations
+# Database (required for Prisma)
 DATABASE_URL=mysql://your_user:your_password@localhost:3306/studybuddy
-
-# Individual DB config (used by the MariaDB adapter at runtime)
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=your_user
-DB_PASSWORD=your_password
-DB_NAME=studybuddy
-
-# Auth
-JWT_SECRET=your_random_secret_key
 
 # Server
 PORT=5000
+
+# Auth (required for JWT signing/verification)
+JWT_SECRET=your_random_secret_key
 ```
 
 Run database migrations and generate the Prisma client:
@@ -176,6 +175,8 @@ Run database migrations and generate the Prisma client:
 npm run db:migrate
 npm run db:generate
 ```
+
+**Migration safety (production / CI):** Use `npm run db:migrate:deploy` to apply pending migrations (e.g. in CI/CD before starting the app). Never edit existing migration files; always add new migrations for schema changes. Run `npm run db:migrate:status` to check for unapplied migrations.
 
 Start the backend dev server:
 
@@ -190,10 +191,58 @@ The API will be available at `http://localhost:5000` (or whichever port you conf
 ```bash
 cd frontend
 npm install
+```
+
+Create a `.env` file (copy from `.env.example`) to configure the API base URL:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+For local development, the default `http://localhost:5000` is used if `VITE_API_URL` is not set. Set it explicitly for staging/production or when the backend runs on a different port.
+
+```bash
 npm run dev
 ```
 
 The app will be available at `http://localhost:5173`.
+
+---
+
+## Monitoring and alerting
+
+The backend exposes operational endpoints for production visibility:
+
+- **GET /health** — Returns 200 when the process is running. Use for liveness probes.
+- **GET /ready** — Returns 200 when the app can serve traffic (DB reachable); 503 with `{ status: 'unready', reason: 'database' }` when the DB check fails. Use for readiness probes (e.g. Kubernetes).
+- **GET /metrics** — Prometheus-format metrics (request count by method/route/status, request duration histogram, default Node.js metrics). Scrape this endpoint in Prometheus or your APM.
+
+**Suggested alerts** (configure in Prometheus/Grafana, Datadog, or your host’s alerting):
+
+1. **Readiness failing** — 503 on `/ready` for 1–2 minutes.
+2. **Error rate** — 5xx rate above a threshold, or 4xx on `/auth` (e.g. brute-force).
+3. **High latency** — e.g. p95 of `studybuddy_http_request_duration_ms` above a threshold.
+
+Structured JSON logs (timestamp, level, traceId, method, url, statusCode, durationMs) can be ingested by your log pipeline and used for alerting on `level: error` or `statusCode: 500`.
+
+---
+
+## Environment Variables
+
+### API alignment (frontend + backend)
+
+For the app to work out-of-the-box, frontend and backend must agree on the API URL:
+
+| Variable        | Location     | Default            | Purpose                                      |
+| --------------- | ------------ | ------------------ | -------------------------------------------- |
+| `PORT`          | `backend/.env` | `5000`             | Port the backend listens on                  |
+| `VITE_API_URL`  | `frontend/.env` | `http://localhost:5000` | API base URL the frontend calls (set at build time) |
+
+**Local development:** Backend runs on port 5000 by default. Frontend fallback is `http://localhost:5000`. No extra config needed.
+
+**Production:** Set `PORT` on the backend. Set `VITE_API_URL` before running `npm run build` in the frontend (e.g. `https://api.yourdomain.com`). The built frontend will call that URL.
+
+**Optional backend vars:** `ALLOWED_ORIGIN` (comma-separated origins for CORS), `DATABASE_URL` / `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` for database connection.
 
 ---
 
@@ -208,7 +257,6 @@ The app will be available at `http://localhost:5173`.
 | `npm run db:migrate`  | `npx prisma migrate dev`| Run database migrations                |
 | `npm run db:studio`   | `npx prisma studio`     | Open Prisma Studio GUI                 |
 | `npm run db:push`     | `npx prisma db push`    | Push schema changes without migration  |
-| `npm test`            | `jest`                   | Run backend tests                      |
 
 ### Frontend (`/frontend`)
 
@@ -223,20 +271,7 @@ The app will be available at `http://localhost:5173`.
 
 ## Testing
 
-The backend includes unit tests written with Jest and Supertest, covering:
-
-- **Auth routes** -- Registration and login flows
-- **Profile routes** -- Profile update operations
-- **Discovery routes** -- User discovery and filtering
-- **Matches routes** -- Match creation, acceptance, rejection, and edge cases
-
-Run the test suite from the `backend/` directory:
-
-```bash
-npm test
-```
-
-Test results are output to `test-results/junit.xml` via the jest-junit reporter.
+Test files and test infrastructure are not included in this repository. Tests are run locally only and are excluded from version control.
 
 ---
 
@@ -246,7 +281,6 @@ Test results are output to `test-results/junit.xml` via the jest-junit reporter.
 | ---------- | ------------------------------------------------------------------- |
 | Frontend   | React 18, Vite 6, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion |
 | Backend    | Express 5, Prisma 7, MariaDB, TypeScript, JWT, bcrypt               |
-| Testing    | Jest, ts-jest, Supertest, jest-junit                                 |
 | Tooling    | Nodemon, ts-node, PostCSS, ESLint                                   |
 
 

@@ -31,7 +31,7 @@ describe('Discovery Routes', () => {
     const res = await request(app)
       .post('/auth/login')
       .send({ email: 'discovery1@example.com', password: 'password123' });
-    token1 = res.body.token;
+    token1 = res.body.accessToken;
   });
 
   it('should return users that are not the logged-in user', async () => {
@@ -61,5 +61,33 @@ describe('Discovery Routes', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toBeInstanceOf(Array);
     expect(res.body.length).toBe(0);
+  });
+
+  it('should return 401 without token', async () => {
+    const res = await request(app).get('/discovery');
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('should return 400 with invalid token', async () => {
+    const res = await request(app)
+      .get('/discovery')
+      .set('Authorization', 'Bearer invalidtoken');
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('response shape: array of users with id and profile', async () => {
+    const res = await request(app)
+      .get('/discovery')
+      .set('Authorization', `Bearer ${token1}`);
+    expect(res.statusCode).toEqual(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    res.body.forEach((item: unknown) => {
+      expect(item).toMatchObject({
+        id: expect.any(String),
+        profile: expect.any(Object),
+      });
+    });
   });
 });

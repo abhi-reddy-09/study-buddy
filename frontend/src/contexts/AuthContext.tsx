@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import api from "@/src/lib/api"
+import api, { ApiError } from "@/src/lib/api"
 
 export interface User {
   id: string
@@ -42,11 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .then((data) => {
           setUser(data.user)
         })
-        .catch(() => {
-          // Token is invalid/expired — clean up
-          localStorage.removeItem("token")
-          setToken(null)
-          setUser(null)
+        .catch((err) => {
+          // Only clear token on auth errors (401 Unauthorized, 400 Invalid token)
+          if (err instanceof ApiError && (err.status === 401 || err.status === 400)) {
+            localStorage.removeItem("token")
+            setToken(null)
+            setUser(null)
+          }
         })
         .finally(() => setLoading(false))
     } else {
@@ -56,8 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (data: { email: string; password: string }) => {
     const result = await api.post("/auth/login", data)
-    localStorage.setItem("token", result.token)
-    setToken(result.token)
+    const accessToken = result.accessToken ?? result.token
+    localStorage.setItem("token", accessToken)
+    if (result.refreshToken) localStorage.setItem("refreshToken", result.refreshToken)
+    setToken(accessToken)
     setUser(result.user)
   }, [])
 
@@ -67,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem("token")
+    localStorage.removeItem("refreshToken")
     setUser(null)
     setToken(null)
     navigate("/")

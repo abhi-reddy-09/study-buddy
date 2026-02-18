@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const getAuthToken = () => {
   return localStorage.getItem('token');
@@ -15,10 +15,20 @@ const buildHeaders = (): HeadersInit => {
   return headers;
 };
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 const handleResponse = async (res: Response) => {
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(data.error || `Request failed with status ${res.status}`);
+    throw new ApiError(data.error || `Request failed with status ${res.status}`, res.status);
   }
   return data;
 };

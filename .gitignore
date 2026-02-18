@@ -1,29 +1,47 @@
+# Dependencies
 node_modules/
 
+# Build output
 dist/
 build/
 out/
 .next/
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files
+# Environment files
 .env*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# vercel
-.vercel
+# Tests (excluded from version control)
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/__tests__/
+test-results/
+coverage/
 
-# typescript
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store
+
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
-
+# Misc
+.vercel
+.turbo
 bugs

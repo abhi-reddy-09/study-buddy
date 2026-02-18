@@ -33,6 +33,7 @@
     "generated/**/*"
   ],
   "exclude": [
-    "prisma.config.ts"
+    "prisma.config.ts",
+    "**/*.test.ts"
   ]
 }

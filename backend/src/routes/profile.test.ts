@@ -2,6 +2,7 @@ import request from 'supertest';
 import { app } from '../server';
 import { prisma } from '../db';
 import bcrypt from 'bcrypt';
+import { expectErrorShape } from './testContracts';
 
 describe('Profile Routes', () => {
   let token: string;
@@ -33,7 +34,7 @@ describe('Profile Routes', () => {
         email: 'profile-test@example.com',
         password: 'password123',
       });
-    token = res.body.token;
+    token = res.body.accessToken;
   });
 
   describe('PUT /profile', () => {
@@ -69,6 +70,18 @@ describe('Profile Routes', () => {
           major: 'History',
         });
       expect(res.statusCode).toEqual(401);
+      expectErrorShape(res.body);
+    });
+
+    it('should return 400 for validation error (major exceeds max length)', async () => {
+      const res = await request(app)
+        .put('/profile')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          major: 'x'.repeat(201),
+        });
+      expect(res.statusCode).toEqual(400);
+      expectErrorShape(res.body);
     });
   });
 });

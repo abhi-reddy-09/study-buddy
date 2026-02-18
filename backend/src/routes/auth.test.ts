@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { app } from '../server';
-import { prisma } from '../db';
+import { expectLoginResponseShape, expectRegisterResponseShape, expectAuthMeResponseShape, expectErrorShape } from './testContracts';
 
 describe('Auth Routes', () => {
 
@@ -15,8 +15,16 @@ describe('Auth Routes', () => {
           lastName: 'User',
         });
       expect(res.statusCode).toEqual(201);
-      expect(res.body).toHaveProperty('user');
+      expectRegisterResponseShape(res.body);
       expect(res.body.user.email).toBe('test@example.com');
+    });
+
+    it('should return 400 for invalid register body (missing email)', async () => {
+      const res = await request(app)
+        .post('/auth/register')
+        .send({ password: 'password123', firstName: 'T', lastName: 'U' });
+      expect(res.statusCode).toEqual(400);
+      expectErrorShape(res.body);
     });
 
     it('should not register a user with an existing email', async () => {
@@ -36,8 +44,8 @@ describe('Auth Routes', () => {
             firstName: 'Test',
             lastName: 'User',
             });
-        expect(res.statusCode).toEqual(400);
-        expect(res.body).toHaveProperty('error', 'User already exists or invalid data');
+        expect(res.statusCode).toEqual(409);
+        expect(res.body).toHaveProperty('error', 'Resource already exists');
     });
   });
 
@@ -62,8 +70,15 @@ describe('Auth Routes', () => {
           password: 'password123',
         });
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty('token');
-      expect(res.body).toHaveProperty('user');
+      expectLoginResponseShape(res.body);
+    });
+
+    it('should return 400 for invalid login body (missing email)', async () => {
+      const res = await request(app)
+        .post('/auth/login')
+        .send({ password: 'password123' });
+      expect(res.statusCode).toEqual(400);
+      expectErrorShape(res.body);
     });
 
     it('should not login with a wrong password', async () => {
@@ -105,16 +120,16 @@ describe('Auth Routes', () => {
                 email: 'test@example.com',
                 password: 'password123',
             });
-        token = res.body.token;
+        token = res.body.accessToken;
     });
 
     it('should get the current user with a valid token', async () => {
       const res = await request(app)
         .get('/auth/me')
         .set('Authorization', `Bearer ${token}`);
-      
+
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty('user');
+      expectAuthMeResponseShape(res.body);
       expect(res.body.user.email).toBe('test@example.com');
     });
 
@@ -128,6 +143,43 @@ describe('Auth Routes', () => {
         .get('/auth/me')
         .set('Authorization', 'Bearer invalidtoken');
         expect(res.statusCode).toEqual(400);
+    });
+  });
+
+  describe('POST /auth/refresh', () => {
+    it('should return new tokens with valid refresh token', async () => {
+      await request(app)
+        .post('/auth/register')
+        .send({ email: 'refresh@example.com', password: 'password123', firstName: 'R', lastName: 'U' });
+      const loginRes = await request(app)
+        .post('/auth/login')
+        .send({ email: 'refresh@example.com', password: 'password123' });
+      const { refreshToken } = loginRes.body;
+      const res = await request(app).post('/auth/refresh').send({ refreshToken });
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('accessToken');
+      expect(res.body).toHaveProperty('refreshToken');
+      expect(res.body).toHaveProperty('user');
+      expect(res.body.user.email).toBe('refresh@example.com');
+    });
+
+    it('should reject invalid refresh token', async () => {
+      const res = await request(app).post('/auth/refresh').send({ refreshToken: 'invalid' });
+      expect(res.statusCode).toEqual(401);
+      expectErrorShape(res.body);
+    });
+
+    it('should return 400 when refresh token is missing in body', async () => {
+      const res = await request(app).post('/auth/refresh').send({});
+      expect(res.statusCode).toEqual(400);
+      expectErrorShape(res.body);
+    });
+  });
+
+  describe('POST /auth/logout', () => {
+    it('should return 204 with or without body', async () => {
+      const res = await request(app).post('/auth/logout').send({});
+      expect(res.statusCode).toEqual(204);
     });
   });
 });
