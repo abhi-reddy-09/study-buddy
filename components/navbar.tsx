@@ -1,13 +1,19 @@
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { Home, Users, MessageSquare, User } from "lucide-react"
+import { Home, Compass, Users, MessageSquare, User } from "lucide-react"
 import { MotionNavIndicator } from "./motion-nav-indicator"
 
 const routes = [
   {
-    label: "Discover",
+    label: "Home",
     icon: Home,
     href: "/",
+    color: "text-amber-500",
+  },
+  {
+    label: "Discover",
+    icon: Compass,
+    href: "/discovery",
     color: "text-violet-500",
   },
   {
