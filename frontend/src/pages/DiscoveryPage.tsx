@@ -3,6 +3,7 @@ import { Heart, X, GraduationCap, BookOpen, Users, Loader2 } from "lucide-react"
 import { MotionCard } from "@/components/motion-card"
 import { toast } from "sonner"
 import api from "@/src/lib/api"
+import { UserAvatar } from "@/src/components/UserAvatar"
 
 interface DiscoveryUser {
   id: string
@@ -12,6 +13,8 @@ interface DiscoveryUser {
     major?: string | null
     bio?: string | null
     studyHabits?: string | null
+    avatarUrl?: string | null
+    gender?: string | null
   } | null
 }
 
@@ -81,7 +84,6 @@ export default function DiscoveryPage() {
   const first = u.profile?.firstName || "?"
   const last = u.profile?.lastName || ""
   const name = u.profile ? `${first} ${last}` : "Unknown"
-  const initials = `${first[0] || ""}${last[0] || ""}`.toUpperCase()
 
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center px-4 py-8">
@@ -96,9 +98,11 @@ export default function DiscoveryPage() {
           <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
             {/* Header */}
             <div className="flex flex-col items-center border-b border-gray-200 px-6 py-8">
-              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-lg font-semibold">
-                {initials}
-              </div>
+              <UserAvatar
+                profile={u.profile}
+                className="mb-3 h-16 w-16"
+                fallbackClassName="bg-gray-100 text-lg font-semibold"
+              />
               <h2 className="text-base font-medium">{name}</h2>
               {u.profile?.major && (
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-gray-600">

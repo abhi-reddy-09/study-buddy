@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import api, { ApiError } from "@/src/lib/api"
+import { type ProfileGender } from "@/src/lib/avatar"
 
 export interface User {
   id: string
@@ -11,6 +12,8 @@ export interface User {
     major?: string | null
     bio?: string | null
     studyHabits?: string | null
+    avatarUrl?: string | null
+    gender?: ProfileGender | null
   } | null
 }
 
@@ -20,7 +23,7 @@ interface AuthContextValue {
   loading: boolean
   isAuthenticated: boolean
   login: (data: { email: string; password: string }) => Promise<void>
-  register: (data: { email: string; password: string; firstName: string; lastName: string; major?: string; studyHabits?: string }) => Promise<void>
+  register: (data: { email: string; password: string; firstName: string; lastName: string; major?: string; studyHabits?: string; avatarUrl?: string; gender?: ProfileGender }) => Promise<void>
   logout: () => void
   setUser: (user: User) => void
 }
@@ -65,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(result.user)
   }, [])
 
-  const register = useCallback(async (data: { email: string; password: string; firstName: string; lastName: string; major?: string; studyHabits?: string }) => {
+  const register = useCallback(async (data: { email: string; password: string; firstName: string; lastName: string; major?: string; studyHabits?: string; avatarUrl?: string; gender?: ProfileGender }) => {
     await api.post("/auth/register", data)
   }, [])
 

@@ -1,0 +1,2 @@
+ALTER TABLE `Profile`
+ADD COLUMN `avatarUrl` VARCHAR(500) NULL;

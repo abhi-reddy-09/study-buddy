@@ -7,10 +7,11 @@ import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { useAuth } from "@/src/contexts/AuthContext"
 import api from "@/src/lib/api"
+import { UserAvatar } from "@/src/components/UserAvatar"
 
 interface MatchProfile {
   id: string
-  profile: { firstName: string; lastName: string; major?: string | null } | null
+  profile: { firstName: string; lastName: string; major?: string | null; avatarUrl?: string | null; gender?: string | null } | null
 }
 
 interface Match {
@@ -115,7 +116,6 @@ export default function MatchesPage() {
           {list.map((match, i) => {
             const other = getOther(match)
             const name = other.profile ? `${other.profile.firstName} ${other.profile.lastName}` : "Unknown"
-            const initial = (other.profile?.firstName?.[0] || "?").toUpperCase()
             const date = new Date(match.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
 
             return (
@@ -126,9 +126,11 @@ export default function MatchesPage() {
                 transition={{ delay: i * 0.03 }}
               >
                 <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:bg-gray-50">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold">
-                    {initial}
-                  </div>
+                  <UserAvatar
+                    profile={other.profile}
+                    className="h-10 w-10 shrink-0"
+                    fallbackClassName="bg-gray-100 text-sm font-semibold"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{name}</p>
                     <p className="flex items-center gap-1.5 text-sm text-gray-600">

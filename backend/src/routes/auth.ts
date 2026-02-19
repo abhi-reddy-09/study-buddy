@@ -10,6 +10,7 @@ import {
   getRefreshTokenExpiresInSeconds,
 } from '../middleware/auth';
 import { validate } from '../middleware/validate';
+import { loginLimiter } from '../middleware/rateLimit';
 import { registerSchema, loginSchema, refreshSchema } from '../schemas/auth';
 import { AppError } from '../errors';
 import {
@@ -40,17 +41,17 @@ router.get('/me', authenticateToken, async (req: AuthRequest, res: Response, nex
   }
 });
 
-// POST /auth/register
-router.post('/register', validate(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
+// POST /auth/register (strict rate limit for brute-force protection)
+router.post('/register', loginLimiter, validate(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password, firstName, lastName, major, studyHabits } = req.body;
+    const { email, password, firstName, lastName, major, studyHabits, avatarUrl, gender } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         profile: {
-          create: { firstName, lastName, major, studyHabits },
+          create: { firstName, lastName, major, studyHabits, avatarUrl, gender },
         },
       },
       include: { profile: true },
@@ -61,8 +62,8 @@ router.post('/register', validate(registerSchema), async (req: Request, res: Res
   }
 });
 
-// POST /auth/login
-router.post('/login', validate(loginSchema), async (req: Request, res: Response, next: NextFunction) => {
+// POST /auth/login (strict rate limit for brute-force protection)
+router.post('/login', loginLimiter, validate(loginSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });

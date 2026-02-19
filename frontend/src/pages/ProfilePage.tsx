@@ -7,6 +7,8 @@ import { Loader2, GraduationCap, BookOpen, Pencil, X } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/src/contexts/AuthContext"
 import api from "@/src/lib/api"
+import { UserAvatar } from "@/src/components/UserAvatar"
+import { buildDiceBearAvatarUrl, getDefaultAvatarStyleForGender, type DiceBearStyle, type ProfileGender } from "@/src/lib/avatar"
 
 const MAJOR_OPTIONS = [
   "Computer Science",
@@ -21,6 +23,14 @@ const MAJOR_OPTIONS = [
   "Other",
 ]
 
+const AVATAR_STYLES: DiceBearStyle[] = ["initials", "adventurer", "bottts", "avataaars"]
+const GENDER_LABELS: Record<ProfileGender, string> = {
+  MALE: "Male",
+  FEMALE: "Female",
+  NON_BINARY: "Non-binary",
+  PREFER_NOT_TO_SAY: "Prefer not to say",
+}
+
 export default function ProfilePage() {
   const { user, setUser, logout } = useAuth()
 
@@ -30,6 +40,10 @@ export default function ProfilePage() {
   const [bio, setBio] = useState("")
   const [studyHabitsList, setStudyHabitsList] = useState<string[]>([])
   const [studyHabitInput, setStudyHabitInput] = useState("")
+  const [avatarStyle, setAvatarStyle] = useState<DiceBearStyle>("initials")
+  const [avatarSeed, setAvatarSeed] = useState("")
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState("")
+  const [avatarSaving, setAvatarSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -41,6 +55,12 @@ export default function ProfilePage() {
       setBio(user.profile.bio || "")
       const raw = user.profile.studyHabits || ""
       setStudyHabitsList(raw ? raw.split(",").map((s) => s.trim()).filter(Boolean) : [])
+      const defaultSeed = `${user.profile.firstName || ""} ${user.profile.lastName || ""}`.trim() || user.email
+      const defaultStyle = getDefaultAvatarStyleForGender(user.profile.gender || undefined)
+      const currentSeed = defaultSeed
+      setAvatarSeed(currentSeed)
+      setAvatarStyle(defaultStyle)
+      setAvatarPreviewUrl(user.profile.avatarUrl || buildDiceBearAvatarUrl(defaultStyle, currentSeed))
     }
   }, [user])
 
@@ -71,6 +91,7 @@ export default function ProfilePage() {
             major: updated.major ?? undefined,
             bio: updated.bio ?? undefined,
             studyHabits: updated.studyHabits ?? undefined,
+            avatarUrl: user.profile?.avatarUrl ?? null,
           },
         })
       }
@@ -95,6 +116,36 @@ export default function ProfilePage() {
     }
   }
 
+  const handleSaveAvatar = async () => {
+    const seed = avatarSeed.trim() || `${firstName} ${lastName}`.trim() || user.email
+    const nextAvatarUrl = buildDiceBearAvatarUrl(avatarStyle, seed)
+    setAvatarSaving(true)
+    try {
+      const updated = await api.put("/profile", { avatarUrl: nextAvatarUrl })
+      setAvatarPreviewUrl(updated.avatarUrl ?? nextAvatarUrl)
+      if (user) {
+        setUser({
+          ...user,
+          profile: {
+            ...user.profile!,
+            avatarUrl: updated.avatarUrl ?? nextAvatarUrl,
+          },
+        })
+      }
+      toast.success("Avatar updated!")
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update avatar")
+    } finally {
+      setAvatarSaving(false)
+    }
+  }
+
+  const handleRegenerateAvatar = () => {
+    const randomSeed = `avatar-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+    setAvatarSeed(randomSeed)
+    setAvatarPreviewUrl(buildDiceBearAvatarUrl(avatarStyle, randomSeed))
+  }
+
   if (!user) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center">
@@ -103,15 +154,15 @@ export default function ProfilePage() {
     )
   }
 
-  const initials = `${firstName[0] || ""}${lastName[0] || ""}`.toUpperCase()
-
   return (
     <div className="mx-auto max-w-lg px-4 py-8">
       {/* Header */}
       <div className="mb-6 flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-100 text-lg font-semibold">
-          {initials}
-        </div>
+        <UserAvatar
+          profile={user.profile}
+          className="h-14 w-14 shrink-0"
+          fallbackClassName="bg-gray-100 text-lg font-semibold"
+        />
         <div className="flex-1">
           <h1 className="text-base font-medium">{firstName} {lastName}</h1>
           <p className="text-sm text-gray-600">{user.email}</p>
@@ -136,6 +187,7 @@ export default function ProfilePage() {
           <Field label="First name" value={firstName} disabled />
           <Field label="Last name" value={lastName} disabled />
         </div>
+        <Field label="Gender" value={(user.profile?.gender && GENDER_LABELS[user.profile.gender]) || "Prefer not to say"} disabled />
 
         <div>
           <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium uppercase text-gray-600">
@@ -209,6 +261,63 @@ export default function ProfilePage() {
               className="disabled:opacity-70"
             />
           )}
+        </div>
+      </div>
+
+      <div className="mt-5 space-y-3 rounded-lg border border-gray-200 bg-white p-5">
+        <h2 className="text-sm font-medium">Avatar</h2>
+        <div className="flex items-center gap-3">
+          <UserAvatar
+            profile={{
+              firstName,
+              lastName,
+              avatarUrl: avatarPreviewUrl || user.profile?.avatarUrl,
+            }}
+            className="h-14 w-14"
+            fallbackClassName="bg-gray-100 text-lg font-semibold"
+          />
+          <p className="text-xs text-gray-600">Generated with DiceBear</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase text-gray-600">Style</label>
+            <select
+              value={avatarStyle}
+              onChange={(e) => {
+                const style = e.target.value as DiceBearStyle
+                setAvatarStyle(style)
+                const seed = avatarSeed.trim() || `${firstName} ${lastName}`.trim() || user.email
+                setAvatarPreviewUrl(buildDiceBearAvatarUrl(style, seed))
+              }}
+              className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400"
+            >
+              {AVATAR_STYLES.map((style) => (
+                <option key={style} value={style}>{style}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase text-gray-600">Seed</label>
+            <Input
+              value={avatarSeed}
+              onChange={(e) => {
+                const seed = e.target.value
+                setAvatarSeed(seed)
+                const fallbackSeed = seed.trim() || `${firstName} ${lastName}`.trim() || user.email
+                setAvatarPreviewUrl(buildDiceBearAvatarUrl(avatarStyle, fallbackSeed))
+              }}
+              placeholder="Enter avatar seed"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button type="button" size="sm" variant="outline" onClick={handleRegenerateAvatar} disabled={avatarSaving}>
+            Regenerate
+          </Button>
+          <Button type="button" size="sm" onClick={handleSaveAvatar} disabled={avatarSaving}>
+            {avatarSaving && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+            Save avatar
+          </Button>
         </div>
       </div>
 

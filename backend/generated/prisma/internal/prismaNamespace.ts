@@ -875,6 +875,8 @@ export const ProfileScalarFieldEnum = {
   major: 'major',
   bio: 'bio',
   studyHabits: 'studyHabits',
+  avatarUrl: 'avatarUrl',
+  gender: 'gender',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -957,7 +959,8 @@ export const ProfileOrderByRelevanceFieldEnum = {
   lastName: 'lastName',
   major: 'major',
   bio: 'bio',
-  studyHabits: 'studyHabits'
+  studyHabits: 'studyHabits',
+  avatarUrl: 'avatarUrl'
 } as const
 
 export type ProfileOrderByRelevanceFieldEnum = (typeof ProfileOrderByRelevanceFieldEnum)[keyof typeof ProfileOrderByRelevanceFieldEnum]
@@ -1008,6 +1011,13 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+/**
+ * Reference to a field of type 'Gender'
+ */
+export type EnumGenderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Gender'>
     
 
 

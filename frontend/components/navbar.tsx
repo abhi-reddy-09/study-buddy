@@ -13,6 +13,7 @@ import {
   PanelLeftOpen,
 } from "lucide-react"
 import { SessionTime } from "@/src/components/SessionTime"
+import { UserAvatar } from "@/src/components/UserAvatar"
 
 const SIDEBAR_EXPANDED = 240
 const SIDEBAR_COLLAPSED = 64
@@ -34,10 +35,6 @@ export function Navbar({ isExpanded = false, onToggle }: NavbarProps) {
     { label: "Messages", icon: MessageSquare, href: "/messages" },
     { label: "Profile", icon: User, href: "/profile" },
   ]
-
-  const initials = user?.profile
-    ? `${user.profile.firstName?.[0] || ""}${user.profile.lastName?.[0] || ""}`.toUpperCase()
-    : ""
 
   const displayName = user?.profile
     ? `${user.profile.firstName || ""} ${user.profile.lastName || ""}`.trim()
@@ -205,9 +202,11 @@ export function Navbar({ isExpanded = false, onToggle }: NavbarProps) {
               }`}
               title={!isExpanded ? "Profile" : undefined}
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-300 text-xs font-semibold text-gray-700">
-                {initials || "?"}
-              </div>
+              <UserAvatar
+                profile={user?.profile}
+                className="h-8 w-8 shrink-0"
+                fallbackClassName="bg-gray-300 text-xs font-semibold text-gray-700"
+              />
               <AnimatePresence mode="wait">
                 {isExpanded && (
                   <motion.div

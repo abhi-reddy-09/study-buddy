@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { optionalAvatarUrl } from './profile';
 
 const emailSchema = z
   .string()
@@ -24,6 +25,10 @@ const optionalString = (maxLen: number) =>
     .transform((val) => (val === '' ? undefined : val))
     .refine((val) => !val || val.length <= maxLen, `Must be at most ${maxLen} characters`);
 
+const optionalGender = z
+  .enum(['MALE', 'FEMALE', 'NON_BINARY', 'PREFER_NOT_TO_SAY'])
+  .optional();
+
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
@@ -31,6 +36,8 @@ export const registerSchema = z.object({
   lastName: nameSchema,
   major: optionalString(200),
   studyHabits: optionalString(2000),
+  avatarUrl: optionalAvatarUrl,
+  gender: optionalGender,
 });
 
 export const loginSchema = z.object({

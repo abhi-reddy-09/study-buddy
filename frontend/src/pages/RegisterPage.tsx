@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { UserAvatar } from '@/src/components/UserAvatar';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { buildDiceBearAvatarUrl, getDefaultAvatarStyleForGender, type DiceBearStyle, type ProfileGender } from '@/src/lib/avatar';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -15,15 +17,33 @@ type RegisterFormData = {
   email: string;
   password: string;
   major?: string;
+  gender?: ProfileGender;
 };
 
+const AVATAR_STYLES: DiceBearStyle[] = ['initials', 'adventurer', 'bottts', 'avataaars'];
+
+const getAvatarSeed = (firstName: string, lastName: string) =>
+  [firstName, lastName].map((s) => (s || '').trim()).filter(Boolean).join('-') || 'user';
+
 export default function RegisterPage() {
-  const { register, handleSubmit } = useForm<RegisterFormData>();
+  const { register, handleSubmit, watch } = useForm<RegisterFormData>();
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [studyHabitInput, setStudyHabitInput] = useState('');
   const [studyHabits, setStudyHabits] = useState<string[]>([]);
+  const [avatarStyle, setAvatarStyle] = useState<DiceBearStyle>(getDefaultAvatarStyleForGender(undefined));
+  const [avatarSeedOverride, setAvatarSeedOverride] = useState<string | null>(null);
+
+  const firstName = watch('firstName') || '';
+  const lastName = watch('lastName') || '';
+  const gender = watch('gender');
+  const avatarSeed = avatarSeedOverride || getAvatarSeed(firstName, lastName);
+  const avatarPreviewUrl = buildDiceBearAvatarUrl(avatarStyle, avatarSeed);
+
+  useEffect(() => {
+    setAvatarStyle(getDefaultAvatarStyleForGender(gender || undefined));
+  }, [gender]);
 
   const addStudyHabit = (value: string) => {
     const next = value.trim();
@@ -37,6 +57,11 @@ export default function RegisterPage() {
     setStudyHabits((prev) => prev.filter((habit) => habit !== value));
   };
 
+  const handleRegenerateAvatar = () => {
+    const randomSeed = `avatar-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    setAvatarSeedOverride(randomSeed);
+  };
+
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
     try {
@@ -46,7 +71,9 @@ export default function RegisterPage() {
       await registerUser({
         ...data,
         major: data.major?.trim() ? data.major : undefined,
+        gender: data.gender,
         studyHabits: uniqueHabits.length ? uniqueHabits.join(', ') : undefined,
+        avatarUrl: avatarPreviewUrl,
       });
       toast.success('Account created! Please sign in.');
       navigate('/login');
@@ -80,6 +107,32 @@ export default function RegisterPage() {
                 <Input id="lastName" type="text" placeholder="Doe" required {...register('lastName')} />
               </div>
             </div>
+            <div className="rounded-md border border-gray-200 p-3">
+              <div className="mb-2 flex items-center gap-3">
+                <UserAvatar
+                  profile={{ firstName, lastName, avatarUrl: avatarPreviewUrl }}
+                  className="h-12 w-12"
+                  fallbackClassName="bg-gray-100 text-sm font-semibold"
+                />
+                <div className="flex-1 space-y-1.5">
+                  <Label htmlFor="avatarStyle">Avatar style</Label>
+                  <select
+                    id="avatarStyle"
+                    value={avatarStyle}
+                    onChange={(e) => setAvatarStyle(e.target.value as DiceBearStyle)}
+                    className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400"
+                  >
+                    {AVATAR_STYLES.map((style) => (
+                      <option key={style} value={style}>{style}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <Button type="button" size="sm" variant="outline" className="mb-2 w-full" onClick={handleRegenerateAvatar}>
+                Regenerate avatar
+              </Button>
+              <p className="text-xs text-gray-600">Avatar is generated from your first and last name.</p>
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="you@example.com" required {...register('email')} />
@@ -87,6 +140,21 @@ export default function RegisterPage() {
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="••••••••" required {...register('password')} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="gender">Gender</Label>
+              <select
+                id="gender"
+                {...register('gender')}
+                className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400"
+                defaultValue=""
+              >
+                <option value="">Prefer not to say</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="NON_BINARY">Non-binary</option>
+                <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+              </select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="major">Major</Label>

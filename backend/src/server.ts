@@ -3,7 +3,6 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
@@ -15,6 +14,7 @@ import matchesRoutes from './routes/matches';
 import { authenticateToken, AuthRequest } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
+import { generalLimiter, authLimiter } from './middleware/rateLimit';
 import { getMetrics, getContentType } from './lib/metrics';
 
 if (process.env.NODE_ENV !== 'test' && !process.env.JWT_SECRET) {
@@ -56,12 +56,6 @@ app.use(requestLogger);
 // Body parsing
 app.use(express.json());
 
-// Rate limit: per-environment. Test = effectively disabled; production = stricter or env-configured.
-const isTest = process.env.NODE_ENV === 'test';
-const windowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000;
-const generalMax = process.env.RATE_LIMIT_MAX != null ? Number(process.env.RATE_LIMIT_MAX) : isTest ? 10000 : process.env.NODE_ENV === 'production' ? 100 : 200;
-const authMax = process.env.RATE_LIMIT_AUTH_MAX != null ? Number(process.env.RATE_LIMIT_AUTH_MAX) : isTest ? 10000 : process.env.NODE_ENV === 'production' ? 10 : 20;
-
 // Health endpoints (before rate limit so probes are not limited)
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' });
@@ -85,22 +79,7 @@ app.get('/metrics', async (_req: Request, res: Response) => {
   }
 });
 
-const generalLimiter = rateLimit({
-  windowMs,
-  max: generalMax,
-  message: { error: 'Too many requests, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 app.use(generalLimiter);
-
-const authLimiter = rateLimit({
-  windowMs,
-  max: authMax,
-  message: { error: 'Too many login attempts, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Study Buddy API is running' });
