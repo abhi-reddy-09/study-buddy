@@ -35,7 +35,7 @@ export async function findValidRefreshToken(
 }
 
 export async function revokeRefreshTokenById(id: string): Promise<void> {
-  await prisma.refreshToken.delete({ where: { id } }).catch(() => {});
+  await prisma.refreshToken.deleteMany({ where: { id } });
 }
 
 export async function revokeAllRefreshTokensForUser(userId: string): Promise<void> {

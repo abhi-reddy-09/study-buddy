@@ -142,7 +142,7 @@ describe('Auth Routes', () => {
         const res = await request(app)
         .get('/auth/me')
         .set('Authorization', 'Bearer invalidtoken');
-        expect(res.statusCode).toEqual(400);
+        expect(res.statusCode).toEqual(401);
     });
   });
 

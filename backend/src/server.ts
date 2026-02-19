@@ -1,10 +1,13 @@
+import path from 'path';
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
-import { prisma } from './db';
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
+import { prisma, checkDatabaseConnection, getConnectionInfo } from './db';
 import authRoutes from './routes/auth';
 import profileRoutes from './routes/profile';
 import discoveryRoutes from './routes/discovery';
@@ -13,8 +16,6 @@ import { authenticateToken, AuthRequest } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { getMetrics, getContentType } from './lib/metrics';
-
-dotenv.config();
 
 if (process.env.NODE_ENV !== 'test' && !process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET is not configured. Set JWT_SECRET in your environment variables.');
@@ -125,9 +126,21 @@ app.get('/users', authenticateToken, async (req: AuthRequest, res: Response, nex
 app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
-  });
+  checkDatabaseConnection()
+    .then(() => {
+      app.listen(port, () => {
+        console.log(`[server]: Server is running at http://localhost:${port}`);
+        console.log('[server]: Database connection OK');
+      });
+    })
+    .catch((err) => {
+      const { host, port, database } = getConnectionInfo();
+      console.error('[server]: Database unreachable. Login and all DB routes will fail.');
+      console.error(`[server]: Trying to connect to ${host}:${port}/${database || '(no database)'}`);
+      console.error('[server]: Check DATABASE_URL in backend/.env — use 127.0.0.1 if localhost fails; ensure the database exists and the user has access.');
+      console.error('[server]: Error:', err.message);
+      process.exit(1);
+    });
 }
 
 export { prisma, app };

@@ -60,7 +60,7 @@ describe('Profile Routes', () => {
         .send({
           major: 'History',
         });
-      expect(res.statusCode).toEqual(400);
+      expect(res.statusCode).toEqual(401);
     });
 
     it('should not update a profile without a token', async () => {

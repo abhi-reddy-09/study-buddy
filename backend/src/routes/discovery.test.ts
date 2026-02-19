@@ -69,11 +69,11 @@ describe('Discovery Routes', () => {
     expect(res.body).toHaveProperty('error');
   });
 
-  it('should return 400 with invalid token', async () => {
+  it('should return 401 with invalid token', async () => {
     const res = await request(app)
       .get('/discovery')
       .set('Authorization', 'Bearer invalidtoken');
-    expect(res.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty('error');
   });
 

@@ -56,12 +56,12 @@ describe('Matches Routes', () => {
       expectErrorShape(res.body);
     });
 
-    it('should return 400 with invalid token', async () => {
+    it('should return 401 with invalid token', async () => {
       const res = await request(app)
         .post('/matches')
         .set('Authorization', 'Bearer invalidtoken')
         .send({ receiverId: user2.id });
-      expect(res.statusCode).toEqual(400);
+      expect(res.statusCode).toEqual(401);
       expectErrorShape(res.body);
     });
 
