@@ -27,6 +27,8 @@ model User {
   receivedMessages Message[]      @relation("ReceivedMessages")
   initiatedMatches Match[]        @relation("Initiator")
   receivedMatches  Match[]       @relation("Receiver")
+  passesGiven      Pass[]        @relation("PassGiver")
+  passesReceived   Pass[]        @relation("PassReceiver")
 }
 
 model RefreshToken {
@@ -71,6 +73,20 @@ model Match {
 
   @@unique([initiatorId, receiverId])
   @@index([status])
+}
+
+/// Records when a user swipes left (passes) on another user so they don't see them again.
+model Pass {
+  id           String   @id @default(cuid())
+  userId       String
+  passedUserId String
+  createdAt    DateTime @default(now())
+
+  user       User @relation("PassGiver", fields: [userId], references: [id], onDelete: Cascade)
+  passedUser User @relation("PassReceiver", fields: [passedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, passedUserId])
+  @@index([userId])
 }
 
 model Message {

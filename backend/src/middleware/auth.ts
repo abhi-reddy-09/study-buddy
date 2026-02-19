@@ -16,7 +16,7 @@ export const getJwtSecret = (): string => {
 };
 
 export const getAccessTokenExpiresIn = (): string => {
-  return process.env.JWT_ACCESS_EXPIRES_IN || '15m';
+  return process.env.JWT_ACCESS_EXPIRES_IN || '1h';
 };
 
 export const getRefreshTokenExpiresInSeconds = (): number => {

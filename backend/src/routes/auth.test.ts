@@ -19,6 +19,23 @@ describe('Auth Routes', () => {
       expect(res.body.user.email).toBe('test@example.com');
     });
 
+    it('should register a new user with study habits', async () => {
+      const res = await request(app)
+        .post('/auth/register')
+        .send({
+          email: 'habits@example.com',
+          password: 'password123',
+          firstName: 'Habit',
+          lastName: 'User',
+          major: 'Computer Science',
+          studyHabits: 'Pomodoro, Flashcards',
+        });
+      expect(res.statusCode).toEqual(201);
+      expectRegisterResponseShape(res.body);
+      expect(res.body.user.profile.major).toBe('Computer Science');
+      expect(res.body.user.profile.studyHabits).toBe('Pomodoro, Flashcards');
+    });
+
     it('should return 400 for invalid register body (missing email)', async () => {
       const res = await request(app)
         .post('/auth/register')

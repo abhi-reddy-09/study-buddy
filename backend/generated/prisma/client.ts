@@ -58,6 +58,11 @@ export type Profile = Prisma.ProfileModel
  */
 export type Match = Prisma.MatchModel
 /**
+ * Model Pass
+ * Records when a user swipes left (passes) on another user so they don't see them again.
+ */
+export type Pass = Prisma.PassModel
+/**
  * Model Message
  * 
  */

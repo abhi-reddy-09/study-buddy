@@ -388,6 +388,7 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Profile: 'Profile',
   Match: 'Match',
+  Pass: 'Pass',
   Message: 'Message'
 } as const
 
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "profile" | "match" | "message"
+    modelProps: "user" | "refreshToken" | "profile" | "match" | "pass" | "message"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -672,6 +673,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Pass: {
+      payload: Prisma.$PassPayload<ExtArgs>
+      fields: Prisma.PassFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PassFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PassFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload>
+        }
+        findFirst: {
+          args: Prisma.PassFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PassFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload>
+        }
+        findMany: {
+          args: Prisma.PassFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload>[]
+        }
+        create: {
+          args: Prisma.PassCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload>
+        }
+        createMany: {
+          args: Prisma.PassCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PassDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload>
+        }
+        update: {
+          args: Prisma.PassUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload>
+        }
+        deleteMany: {
+          args: Prisma.PassDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PassUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PassUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PassPayload>
+        }
+        aggregate: {
+          args: Prisma.PassAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePass>
+        }
+        groupBy: {
+          args: Prisma.PassGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PassGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PassCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PassCountAggregateOutputType> | number
+        }
+      }
+    }
     Message: {
       payload: Prisma.$MessagePayload<ExtArgs>
       fields: Prisma.MessageFieldRefs
@@ -827,6 +894,16 @@ export const MatchScalarFieldEnum = {
 export type MatchScalarFieldEnum = (typeof MatchScalarFieldEnum)[keyof typeof MatchScalarFieldEnum]
 
 
+export const PassScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  passedUserId: 'passedUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type PassScalarFieldEnum = (typeof PassScalarFieldEnum)[keyof typeof PassScalarFieldEnum]
+
+
 export const MessageScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -893,6 +970,15 @@ export const MatchOrderByRelevanceFieldEnum = {
 } as const
 
 export type MatchOrderByRelevanceFieldEnum = (typeof MatchOrderByRelevanceFieldEnum)[keyof typeof MatchOrderByRelevanceFieldEnum]
+
+
+export const PassOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  passedUserId: 'passedUserId'
+} as const
+
+export type PassOrderByRelevanceFieldEnum = (typeof PassOrderByRelevanceFieldEnum)[keyof typeof PassOrderByRelevanceFieldEnum]
 
 
 export const MessageOrderByRelevanceFieldEnum = {
@@ -1037,6 +1123,7 @@ export type GlobalOmitConfig = {
   refreshToken?: Prisma.RefreshTokenOmit
   profile?: Prisma.ProfileOmit
   match?: Prisma.MatchOmit
+  pass?: Prisma.PassOmit
   message?: Prisma.MessageOmit
 }
 

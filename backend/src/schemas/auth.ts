@@ -17,11 +17,20 @@ const nameSchema = z
   .max(100, 'Name must be at most 100 characters')
   .trim();
 
+const optionalString = (maxLen: number) =>
+  z
+    .string()
+    .optional()
+    .transform((val) => (val === '' ? undefined : val))
+    .refine((val) => !val || val.length <= maxLen, `Must be at most ${maxLen} characters`);
+
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   firstName: nameSchema,
   lastName: nameSchema,
+  major: optionalString(200),
+  studyHabits: optionalString(2000),
 });
 
 export const loginSchema = z.object({

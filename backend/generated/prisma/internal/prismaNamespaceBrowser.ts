@@ -55,6 +55,7 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Profile: 'Profile',
   Match: 'Match',
+  Pass: 'Pass',
   Message: 'Message'
 } as const
 
@@ -124,6 +125,16 @@ export const MatchScalarFieldEnum = {
 export type MatchScalarFieldEnum = (typeof MatchScalarFieldEnum)[keyof typeof MatchScalarFieldEnum]
 
 
+export const PassScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  passedUserId: 'passedUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type PassScalarFieldEnum = (typeof PassScalarFieldEnum)[keyof typeof PassScalarFieldEnum]
+
+
 export const MessageScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -190,6 +201,15 @@ export const MatchOrderByRelevanceFieldEnum = {
 } as const
 
 export type MatchOrderByRelevanceFieldEnum = (typeof MatchOrderByRelevanceFieldEnum)[keyof typeof MatchOrderByRelevanceFieldEnum]
+
+
+export const PassOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  passedUserId: 'passedUserId'
+} as const
+
+export type PassOrderByRelevanceFieldEnum = (typeof PassOrderByRelevanceFieldEnum)[keyof typeof PassOrderByRelevanceFieldEnum]
 
 
 export const MessageOrderByRelevanceFieldEnum = {

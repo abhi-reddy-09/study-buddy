@@ -12,6 +12,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react"
+import { SessionTime } from "@/src/components/SessionTime"
 
 const SIDEBAR_EXPANDED = 240
 const SIDEBAR_COLLAPSED = 64
@@ -196,6 +197,7 @@ export function Navbar({ isExpanded = false, onToggle }: NavbarProps) {
         {/* User footer */}
         {isAuthenticated && (
           <div className="shrink-0 border-t border-gray-200 p-2">
+            <SessionTime expanded={isExpanded} />
             <Link
               to="/profile"
               className={`flex items-center gap-3 rounded-lg p-2.5 hover:bg-white/80 ${
@@ -236,6 +238,11 @@ export function Navbar({ isExpanded = false, onToggle }: NavbarProps) {
 
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+        {isAuthenticated && (
+          <div className="flex justify-center border-b border-gray-100 py-1.5">
+            <SessionTime expanded={true} />
+          </div>
+        )}
         <div className="flex justify-around py-2">
           {isAuthenticated ? (
             navItems.map((item) => {

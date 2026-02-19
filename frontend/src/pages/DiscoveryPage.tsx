@@ -43,6 +43,9 @@ export default function DiscoveryPage() {
       } finally {
         setActionLoading(false)
       }
+    } else {
+      // Swipe left: record pass so this user won't show again after refresh
+      api.post("/discovery/pass", { passedUserId: current.id }).catch(() => {})
     }
 
     // Wait for the swipe-out animation to complete before removing the card

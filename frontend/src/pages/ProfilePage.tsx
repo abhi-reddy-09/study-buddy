@@ -2,10 +2,24 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, GraduationCap, BookOpen, Pencil } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, GraduationCap, BookOpen, Pencil, X } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/src/contexts/AuthContext"
 import api from "@/src/lib/api"
+
+const MAJOR_OPTIONS = [
+  "Computer Science",
+  "Information Technology",
+  "Software Engineering",
+  "Data Science",
+  "Business Administration",
+  "Mechanical Engineering",
+  "Electrical Engineering",
+  "Biology",
+  "Psychology",
+  "Other",
+]
 
 export default function ProfilePage() {
   const { user, setUser, logout } = useAuth()
@@ -14,7 +28,8 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState("")
   const [major, setMajor] = useState("")
   const [bio, setBio] = useState("")
-  const [studyHabits, setStudyHabits] = useState("")
+  const [studyHabitsList, setStudyHabitsList] = useState<string[]>([])
+  const [studyHabitInput, setStudyHabitInput] = useState("")
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -24,22 +39,44 @@ export default function ProfilePage() {
       setLastName(user.profile.lastName || "")
       setMajor(user.profile.major || "")
       setBio(user.profile.bio || "")
-      setStudyHabits(user.profile.studyHabits || "")
+      const raw = user.profile.studyHabits || ""
+      setStudyHabitsList(raw ? raw.split(",").map((s) => s.trim()).filter(Boolean) : [])
     }
   }, [user])
+
+  const addStudyHabit = (value: string) => {
+    const next = value.trim()
+    if (!next) return
+    if (studyHabitsList.some((h) => h.toLowerCase() === next.toLowerCase())) return
+    setStudyHabitsList((prev) => [...prev, next])
+    setStudyHabitInput("")
+  }
+
+  const removeStudyHabit = (habit: string) => {
+    setStudyHabitsList((prev) => prev.filter((h) => h !== habit))
+  }
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const updated = await api.put("/profile", { major, bio, studyHabits })
+      const mergedHabits = [...studyHabitsList]
+      if (studyHabitInput.trim()) mergedHabits.push(studyHabitInput.trim())
+      const studyHabitsStr = mergedHabits.length ? mergedHabits.join(", ") : ""
+      const updated = await api.put("/profile", { major: major || undefined, bio, studyHabits: studyHabitsStr || undefined })
       if (user) {
         setUser({
           ...user,
-          profile: { ...user.profile!, major: updated.major, bio: updated.bio, studyHabits: updated.studyHabits },
+          profile: {
+            ...user.profile!,
+            major: updated.major ?? undefined,
+            bio: updated.bio ?? undefined,
+            studyHabits: updated.studyHabits ?? undefined,
+          },
         })
       }
       toast.success("Profile updated!")
       setIsEditing(false)
+      setStudyHabitInput("")
     } catch (err: any) {
       toast.error(err.message || "Failed to update")
     } finally {
@@ -49,10 +86,12 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setIsEditing(false)
+    setStudyHabitInput("")
     if (user?.profile) {
       setMajor(user.profile.major || "")
       setBio(user.profile.bio || "")
-      setStudyHabits(user.profile.studyHabits || "")
+      const raw = user.profile.studyHabits || ""
+      setStudyHabitsList(raw ? raw.split(",").map((s) => s.trim()).filter(Boolean) : [])
     }
   }
 
@@ -102,7 +141,20 @@ export default function ProfilePage() {
           <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium uppercase text-gray-600">
             <GraduationCap className="h-3 w-3" /> Major
           </label>
-          <Input value={major} onChange={(e) => setMajor(e.target.value)} disabled={!isEditing} placeholder="e.g. Computer Science" />
+          {isEditing ? (
+            <select
+              value={major}
+              onChange={(e) => setMajor(e.target.value)}
+              className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400"
+            >
+              <option value="">Select your major</option>
+              {MAJOR_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          ) : (
+            <Input value={major || "—"} disabled className="disabled:opacity-70" />
+          )}
         </div>
 
         <div>
@@ -114,7 +166,49 @@ export default function ProfilePage() {
           <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium uppercase text-gray-600">
             <BookOpen className="h-3 w-3" /> Study habits
           </label>
-          <Textarea value={studyHabits} onChange={(e) => setStudyHabits(e.target.value)} disabled={!isEditing} rows={3} placeholder="How do you prefer to study?" />
+          {isEditing ? (
+            <>
+              <Input
+                type="text"
+                value={studyHabitInput}
+                onChange={(e) => setStudyHabitInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === " ") {
+                    e.preventDefault()
+                    addStudyHabit(studyHabitInput)
+                  } else if (e.key === "Backspace" && !studyHabitInput && studyHabitsList.length) {
+                    e.preventDefault()
+                    setStudyHabitsList((prev) => prev.slice(0, -1))
+                  }
+                }}
+                placeholder="Type a habit and press Space"
+                className="mb-2"
+              />
+              {studyHabitsList.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {studyHabitsList.map((habit) => (
+                    <Badge key={habit} variant="secondary" className="gap-1 pr-1">
+                      {habit}
+                      <button
+                        type="button"
+                        className="rounded p-0.5 hover:bg-gray-200"
+                        onClick={() => removeStudyHabit(habit)}
+                        aria-label={`Remove ${habit}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <Input
+              value={studyHabitsList.length ? studyHabitsList.join(", ") : "—"}
+              disabled
+              className="disabled:opacity-70"
+            />
+          )}
         </div>
       </div>
 

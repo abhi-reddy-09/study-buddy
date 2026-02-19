@@ -43,14 +43,14 @@ router.get('/me', authenticateToken, async (req: AuthRequest, res: Response, nex
 // POST /auth/register
 router.post('/register', validate(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName, major, studyHabits } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         profile: {
-          create: { firstName, lastName },
+          create: { firstName, lastName, major, studyHabits },
         },
       },
       include: { profile: true },

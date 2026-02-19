@@ -196,6 +196,8 @@ export type UserWhereInput = {
   receivedMessages?: Prisma.MessageListRelationFilter
   initiatedMatches?: Prisma.MatchListRelationFilter
   receivedMatches?: Prisma.MatchListRelationFilter
+  passesGiven?: Prisma.PassListRelationFilter
+  passesReceived?: Prisma.PassListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -211,6 +213,8 @@ export type UserOrderByWithRelationInput = {
   receivedMessages?: Prisma.MessageOrderByRelationAggregateInput
   initiatedMatches?: Prisma.MatchOrderByRelationAggregateInput
   receivedMatches?: Prisma.MatchOrderByRelationAggregateInput
+  passesGiven?: Prisma.PassOrderByRelationAggregateInput
+  passesReceived?: Prisma.PassOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -230,6 +234,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   receivedMessages?: Prisma.MessageListRelationFilter
   initiatedMatches?: Prisma.MatchListRelationFilter
   receivedMatches?: Prisma.MatchListRelationFilter
+  passesGiven?: Prisma.PassListRelationFilter
+  passesReceived?: Prisma.PassListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -269,6 +275,8 @@ export type UserCreateInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -284,6 +292,8 @@ export type UserUncheckedCreateInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUpdateInput = {
@@ -299,6 +309,8 @@ export type UserUpdateInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -314,6 +326,8 @@ export type UserUncheckedUpdateInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -445,6 +459,34 @@ export type UserUpdateOneRequiredWithoutReceivedMatchesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedMatchesInput, Prisma.UserUpdateWithoutReceivedMatchesInput>, Prisma.UserUncheckedUpdateWithoutReceivedMatchesInput>
 }
 
+export type UserCreateNestedOneWithoutPassesGivenInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPassesGivenInput, Prisma.UserUncheckedCreateWithoutPassesGivenInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPassesGivenInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutPassesReceivedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPassesReceivedInput, Prisma.UserUncheckedCreateWithoutPassesReceivedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPassesReceivedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPassesGivenNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPassesGivenInput, Prisma.UserUncheckedCreateWithoutPassesGivenInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPassesGivenInput
+  upsert?: Prisma.UserUpsertWithoutPassesGivenInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPassesGivenInput, Prisma.UserUpdateWithoutPassesGivenInput>, Prisma.UserUncheckedUpdateWithoutPassesGivenInput>
+}
+
+export type UserUpdateOneRequiredWithoutPassesReceivedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPassesReceivedInput, Prisma.UserUncheckedCreateWithoutPassesReceivedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPassesReceivedInput
+  upsert?: Prisma.UserUpsertWithoutPassesReceivedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPassesReceivedInput, Prisma.UserUpdateWithoutPassesReceivedInput>, Prisma.UserUncheckedUpdateWithoutPassesReceivedInput>
+}
+
 export type UserCreateNestedOneWithoutSentMessagesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
@@ -485,6 +527,8 @@ export type UserCreateWithoutRefreshTokensInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -499,6 +543,8 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -529,6 +575,8 @@ export type UserUpdateWithoutRefreshTokensInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -543,6 +591,8 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserCreateWithoutProfileInput = {
@@ -557,6 +607,8 @@ export type UserCreateWithoutProfileInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUncheckedCreateWithoutProfileInput = {
@@ -571,6 +623,8 @@ export type UserUncheckedCreateWithoutProfileInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserCreateOrConnectWithoutProfileInput = {
@@ -601,6 +655,8 @@ export type UserUpdateWithoutProfileInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProfileInput = {
@@ -615,6 +671,8 @@ export type UserUncheckedUpdateWithoutProfileInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserCreateWithoutInitiatedMatchesInput = {
@@ -629,6 +687,8 @@ export type UserCreateWithoutInitiatedMatchesInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUncheckedCreateWithoutInitiatedMatchesInput = {
@@ -643,6 +703,8 @@ export type UserUncheckedCreateWithoutInitiatedMatchesInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserCreateOrConnectWithoutInitiatedMatchesInput = {
@@ -662,6 +724,8 @@ export type UserCreateWithoutReceivedMatchesInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUncheckedCreateWithoutReceivedMatchesInput = {
@@ -676,6 +740,8 @@ export type UserUncheckedCreateWithoutReceivedMatchesInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserCreateOrConnectWithoutReceivedMatchesInput = {
@@ -706,6 +772,8 @@ export type UserUpdateWithoutInitiatedMatchesInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInitiatedMatchesInput = {
@@ -720,6 +788,8 @@ export type UserUncheckedUpdateWithoutInitiatedMatchesInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUpsertWithoutReceivedMatchesInput = {
@@ -745,6 +815,8 @@ export type UserUpdateWithoutReceivedMatchesInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedMatchesInput = {
@@ -759,6 +831,168 @@ export type UserUncheckedUpdateWithoutReceivedMatchesInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
+}
+
+export type UserCreateWithoutPassesGivenInput = {
+  id?: string
+  email: string
+  password: string
+  role?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
+  receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
+}
+
+export type UserUncheckedCreateWithoutPassesGivenInput = {
+  id?: string
+  email: string
+  password: string
+  role?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
+  receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
+}
+
+export type UserCreateOrConnectWithoutPassesGivenInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPassesGivenInput, Prisma.UserUncheckedCreateWithoutPassesGivenInput>
+}
+
+export type UserCreateWithoutPassesReceivedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
+  receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPassesReceivedInput = {
+  id?: string
+  email: string
+  password: string
+  role?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
+  receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPassesReceivedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPassesReceivedInput, Prisma.UserUncheckedCreateWithoutPassesReceivedInput>
+}
+
+export type UserUpsertWithoutPassesGivenInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPassesGivenInput, Prisma.UserUncheckedUpdateWithoutPassesGivenInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPassesGivenInput, Prisma.UserUncheckedCreateWithoutPassesGivenInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPassesGivenInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPassesGivenInput, Prisma.UserUncheckedUpdateWithoutPassesGivenInput>
+}
+
+export type UserUpdateWithoutPassesGivenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
+  receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPassesGivenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
+  receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
+}
+
+export type UserUpsertWithoutPassesReceivedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPassesReceivedInput, Prisma.UserUncheckedUpdateWithoutPassesReceivedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPassesReceivedInput, Prisma.UserUncheckedCreateWithoutPassesReceivedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPassesReceivedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPassesReceivedInput, Prisma.UserUncheckedUpdateWithoutPassesReceivedInput>
+}
+
+export type UserUpdateWithoutPassesReceivedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
+  receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPassesReceivedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
+  receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -773,6 +1007,8 @@ export type UserCreateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -787,6 +1023,8 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -806,6 +1044,8 @@ export type UserCreateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   initiatedMatches?: Prisma.MatchCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserUncheckedCreateWithoutReceivedMessagesInput = {
@@ -820,6 +1060,8 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   initiatedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutInitiatorInput
   receivedMatches?: Prisma.MatchUncheckedCreateNestedManyWithoutReceiverInput
+  passesGiven?: Prisma.PassUncheckedCreateNestedManyWithoutUserInput
+  passesReceived?: Prisma.PassUncheckedCreateNestedManyWithoutPassedUserInput
 }
 
 export type UserCreateOrConnectWithoutReceivedMessagesInput = {
@@ -850,6 +1092,8 @@ export type UserUpdateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -864,6 +1108,8 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUpsertWithoutReceivedMessagesInput = {
@@ -889,6 +1135,8 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   initiatedMatches?: Prisma.MatchUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUpdateManyWithoutPassedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
@@ -903,6 +1151,8 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   initiatedMatches?: Prisma.MatchUncheckedUpdateManyWithoutInitiatorNestedInput
   receivedMatches?: Prisma.MatchUncheckedUpdateManyWithoutReceiverNestedInput
+  passesGiven?: Prisma.PassUncheckedUpdateManyWithoutUserNestedInput
+  passesReceived?: Prisma.PassUncheckedUpdateManyWithoutPassedUserNestedInput
 }
 
 
@@ -916,6 +1166,8 @@ export type UserCountOutputType = {
   receivedMessages: number
   initiatedMatches: number
   receivedMatches: number
+  passesGiven: number
+  passesReceived: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -924,6 +1176,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   receivedMessages?: boolean | UserCountOutputTypeCountReceivedMessagesArgs
   initiatedMatches?: boolean | UserCountOutputTypeCountInitiatedMatchesArgs
   receivedMatches?: boolean | UserCountOutputTypeCountReceivedMatchesArgs
+  passesGiven?: boolean | UserCountOutputTypeCountPassesGivenArgs
+  passesReceived?: boolean | UserCountOutputTypeCountPassesReceivedArgs
 }
 
 /**
@@ -971,6 +1225,20 @@ export type UserCountOutputTypeCountReceivedMatchesArgs<ExtArgs extends runtime.
   where?: Prisma.MatchWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPassesGivenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PassWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPassesReceivedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PassWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -985,6 +1253,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   initiatedMatches?: boolean | Prisma.User$initiatedMatchesArgs<ExtArgs>
   receivedMatches?: boolean | Prisma.User$receivedMatchesArgs<ExtArgs>
+  passesGiven?: boolean | Prisma.User$passesGivenArgs<ExtArgs>
+  passesReceived?: boolean | Prisma.User$passesReceivedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1007,6 +1277,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   initiatedMatches?: boolean | Prisma.User$initiatedMatchesArgs<ExtArgs>
   receivedMatches?: boolean | Prisma.User$receivedMatchesArgs<ExtArgs>
+  passesGiven?: boolean | Prisma.User$passesGivenArgs<ExtArgs>
+  passesReceived?: boolean | Prisma.User$passesReceivedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1019,6 +1291,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     receivedMessages: Prisma.$MessagePayload<ExtArgs>[]
     initiatedMatches: Prisma.$MatchPayload<ExtArgs>[]
     receivedMatches: Prisma.$MatchPayload<ExtArgs>[]
+    passesGiven: Prisma.$PassPayload<ExtArgs>[]
+    passesReceived: Prisma.$PassPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1373,6 +1647,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   receivedMessages<T extends Prisma.User$receivedMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   initiatedMatches<T extends Prisma.User$initiatedMatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$initiatedMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   receivedMatches<T extends Prisma.User$receivedMatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passesGiven<T extends Prisma.User$passesGivenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passesGivenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passesReceived<T extends Prisma.User$passesReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passesReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1887,6 +2163,54 @@ export type User$receivedMatchesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.MatchScalarFieldEnum | Prisma.MatchScalarFieldEnum[]
+}
+
+/**
+ * User.passesGiven
+ */
+export type User$passesGivenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Pass
+   */
+  select?: Prisma.PassSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Pass
+   */
+  omit?: Prisma.PassOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PassInclude<ExtArgs> | null
+  where?: Prisma.PassWhereInput
+  orderBy?: Prisma.PassOrderByWithRelationInput | Prisma.PassOrderByWithRelationInput[]
+  cursor?: Prisma.PassWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PassScalarFieldEnum | Prisma.PassScalarFieldEnum[]
+}
+
+/**
+ * User.passesReceived
+ */
+export type User$passesReceivedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Pass
+   */
+  select?: Prisma.PassSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Pass
+   */
+  omit?: Prisma.PassOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PassInclude<ExtArgs> | null
+  where?: Prisma.PassWhereInput
+  orderBy?: Prisma.PassOrderByWithRelationInput | Prisma.PassOrderByWithRelationInput[]
+  cursor?: Prisma.PassWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PassScalarFieldEnum | Prisma.PassScalarFieldEnum[]
 }
 
 /**
