@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum MatchStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String    
+  role      String    @default("USER")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  profile          Profile?       @relation("UserProfile")
+  refreshTokens    RefreshToken[]
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  initiatedMatches Match[]        @relation("Initiator")
+  receivedMatches  Match[]       @relation("Receiver")
+  passesGiven      Pass[]        @relation("PassGiver")
+  passesReceived   Pass[]        @relation("PassReceiver")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model Profile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation("UserProfile", fields: [userId], references: [id])  
+
+  firstName   String
+  lastName    String
+  major       String?
+  bio         String?   @db.Text
+  studyHabits String?   @db.Text
+  avatarUrl   String?
+  gender      Gender?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Match {
+  id          String      @id @default(cuid())
+  initiatorId String
+  receiverId  String
+  initiator   User        @relation("Initiator", fields: [initiatorId], references: [id])
+  receiver    User        @relation("Receiver", fields: [receiverId], references: [id])
+
+  status      MatchStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([initiatorId, receiverId])
+  @@index([status])
+}
+
+/// Records when a user swipes left (passes) on another user so they don't see them again.
+model Pass {
+  id           String   @id @default(cuid())
+  userId       String
+  passedUserId String
+  createdAt    DateTime @default(now())
+
+  user       User @relation("PassGiver", fields: [userId], references: [id], onDelete: Cascade)
+  passedUser User @relation("PassReceiver", fields: [passedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, passedUserId])
+  @@index([userId])
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  content     String    @db.Text
+  
+  senderId    String
+  receiverId  String
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiver    User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  createdAt   DateTime  @default(now())
+}

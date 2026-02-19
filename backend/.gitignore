@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# Prisma generated client
+generated/
+
+# Tests (excluded from version control)
+*.test.ts
+*.spec.ts
+test-results/
+coverage/
+
+# Seed scripts (local use)
+seed.mjs
+seed.ts
