@@ -9,13 +9,15 @@ For the app to work out-of-the-box, frontend and backend must agree on the API U
 | Variable        | Location     | Default            | Purpose                                      |
 | --------------- | ------------ | ------------------ | -------------------------------------------- |
 | `PORT`          | `backend/.env` | `5000`             | Port the backend listens on                  |
-| `VITE_API_URL`  | `frontend/.env` | `http://localhost:5000` | API base URL the frontend calls (set at build time) |
+| `VITE_API_URL`  | `frontend/.env` | `http://localhost:5000` | API and Socket.io base URL the frontend uses (set at build time); see `frontend/.env.example` |
 
 **Local development:** Backend runs on port 5000 by default. Frontend fallback is `http://localhost:5000`. No extra config needed.
 
 **Production:** Set `PORT` on the backend. Set `VITE_API_URL` before running `npm run build` in the frontend (e.g. `https://api.yourdomain.com`). The built frontend will call that URL.
 
-**Optional backend vars:** `ALLOWED_ORIGIN` (comma-separated origins for CORS), `DATABASE_URL` / `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` for database connection.
+**Backend env (see `backend/.env.example`):** `PORT`, `DATABASE_URL` (or `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`), `JWT_SECRET` (required), `JWT_ACCESS_EXPIRES_IN` (default `1h`), `JWT_REFRESH_EXPIRES_IN` (default `7d`), `ALLOWED_ORIGIN` (comma-separated for CORS and Socket.io), `NODE_ENV`, `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX`, `RATE_LIMIT_AUTH_MAX`, `RATE_LIMIT_LOGIN_MAX`.
+
+**Socket.io:** The frontend connects to the same base URL as the API (`VITE_API_URL`). Socket.io runs on the same HTTP server as Express; no separate port is needed.
 
 ## Monitoring and alerting
 

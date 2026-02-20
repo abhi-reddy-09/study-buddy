@@ -16,6 +16,7 @@ This is a **monorepo** with three directories:
 | ORM          | Prisma 7 (with MariaDB adapter)     |
 | Database     | MariaDB / MySQL                     |
 | Auth         | JWT (jsonwebtoken) + bcrypt         |
+| Real-time    | Socket.io (same HTTP server as Express) |
 | Validation   | Zod schemas per route               |
 | Security     | Helmet, CORS, rate limiting (auth brute-force protection) |
 | Logging      | Request logging with trace IDs      |
@@ -35,11 +36,13 @@ This is a **monorepo** with three directories:
 | Icons        | Lucide React                          |
 | Toasts       | Sonner                                |
 | Charts       | Recharts                              |
+| Real-time    | socket.io-client (Socket.io)          |
+| Emoji        | emoji-picker-react                    |
 
 ## Tech Stack Summary
 
 | Area       | Technologies                                                        |
 | ---------- | ------------------------------------------------------------------- |
-| Frontend   | React 18, Vite 6, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion |
-| Backend    | Express 5, Prisma 7, MariaDB, TypeScript, JWT, bcrypt               |
+| Frontend   | React 18, Vite 6, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, socket.io-client, emoji-picker-react |
+| Backend    | Express 5, Prisma 7, MariaDB, TypeScript, JWT, bcrypt, Socket.io     |
 | Tooling    | Nodemon, ts-node, PostCSS, ESLint                                   |

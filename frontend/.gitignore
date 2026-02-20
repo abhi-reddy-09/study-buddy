@@ -14,3 +14,11 @@ dist/
 **/*.spec.ts
 **/*.spec.tsx
 coverage/
+
+# IDE / editor
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

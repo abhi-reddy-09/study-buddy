@@ -50,7 +50,7 @@ Start the backend dev server:
 npm run dev
 ```
 
-The API will be available at `http://localhost:5000` (or whichever port you configured).
+The API and Socket.io server will be available at `http://localhost:5000` (or whichever port you configured). The same port serves both REST and WebSocket connections.
 
 ### 3. Setup the Frontend
 
@@ -65,7 +65,7 @@ Create a `.env` file (copy from `.env.example`) to configure the API base URL:
 VITE_API_URL=http://localhost:5000
 ```
 
-For local development, the default `http://localhost:5000` is used if `VITE_API_URL` is not set. Set it explicitly for staging/production or when the backend runs on a different port.
+For local development, the default `http://localhost:5000` is used if `VITE_API_URL` is not set (for both REST and Socket.io). Set it explicitly for staging/production or when the backend runs on a different port. In production, set `ALLOWED_ORIGIN` on the backend to your frontend origin(s).
 
 ```bash
 npm run dev

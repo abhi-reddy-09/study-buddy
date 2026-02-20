@@ -15,7 +15,7 @@
 
 - **Discovery** -- Browse and search for study partners who haven't been matched with you yet, filtered automatically by existing connections
 - **Matching** -- Send match requests to potential study buddies. Receivers can accept or reject incoming requests, with duplicate-match prevention built in
-- **Messaging** -- Chat with matched partners through a dedicated conversations list and per-thread chat interface
+- **Messaging** -- Real-time chat with accepted matches via Socket.io: conversations list, per-thread chat, read receipts, typing indicators, emoji picker, and clear-chat option
 - **Profiles** -- Create a student profile during registration (first name, last name) and later update your major, bio, and study habits
 - **Authentication** -- JWT-based auth with bcrypt password hashing. Registration automatically creates a linked profile
 - **Dark Mode** -- Toggle between light and dark themes with persistent preference via next-themes
