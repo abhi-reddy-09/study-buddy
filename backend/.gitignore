@@ -16,3 +16,7 @@ coverage/
 # Seed scripts (local use)
 seed.mjs
 seed.ts
+
+# Logs and temp
+*.log
+.turbo
