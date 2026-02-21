@@ -101,6 +101,22 @@ describe('Matches Routes', () => {
       
       expect(res.statusCode).toEqual(400);
     });
+
+    it('should allow re-initiation when previous match was rejected', async () => {
+      const match = await prisma.match.create({
+        data: { initiatorId: user1.id, receiverId: user2.id, status: 'REJECTED' },
+      });
+      const res = await request(app)
+        .post('/matches')
+        .set('Authorization', `Bearer ${token1}`)
+        .send({ receiverId: user2.id });
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.id).toBe(match.id);
+      expect(res.body.status).toBe('PENDING');
+      const updated = await prisma.match.findUnique({ where: { id: match.id } });
+      expect(updated?.status).toBe('PENDING');
+    });
   });
 
   describe('GET /matches', () => {
