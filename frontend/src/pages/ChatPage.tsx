@@ -147,10 +147,12 @@ export default function ChatPage() {
       ])
     }
 
-    const onMessageRead = () => {
-      setMessages((prev) =>
-        prev.map((m) => (m.sender === "me" ? { ...m, readAt: new Date().toISOString() } : m))
-      )
+    const onMessageRead = (payload: { readerId?: string; conversationPartnerId?: string }) => {
+      if (payload?.readerId === chatId && payload?.conversationPartnerId === currentUserId) {
+        setMessages((prev) =>
+          prev.map((m) => (m.sender === "me" ? { ...m, readAt: new Date().toISOString() } : m))
+        )
+      }
     }
 
     sock.on("new_message", onNewMessage)
@@ -162,14 +164,18 @@ export default function ChatPage() {
     }
   }, [chatId, currentUserId])
 
-  // Typing indicators: receive
+  // Typing indicators: receive (scoped to active conversation partner)
   useEffect(() => {
     if (!chatId) return
     const sock = getSocket()
     if (!sock) return
 
-    const onTyping = () => setOtherTyping(true)
-    const onStop = () => setOtherTyping(false)
+    const onTyping = (payload: { userId?: string }) => {
+      if (payload?.userId === chatId) setOtherTyping(true)
+    }
+    const onStop = (payload: { userId?: string }) => {
+      if (payload?.userId === chatId) setOtherTyping(false)
+    }
 
     sock.on("user_typing", onTyping)
     sock.on("user_stopped_typing", onStop)

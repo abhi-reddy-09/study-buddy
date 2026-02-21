@@ -87,6 +87,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     disconnectSocket()
+    if (localStorage.getItem("token")) {
+      api.post("/auth/logout-all").catch(() => {})
+    }
     localStorage.removeItem("token")
     localStorage.removeItem("refreshToken")
     setUser(null)

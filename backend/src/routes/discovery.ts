@@ -48,6 +48,10 @@ router.post('/pass', authenticateToken, validate(passSchema), async (req: AuthRe
     if (passedUserId === userId) {
       throw new AppError(400, 'Cannot pass on yourself');
     }
+    const targetUser = await prisma.user.findUnique({ where: { id: passedUserId } });
+    if (!targetUser) {
+      throw new AppError(404, 'User not found');
+    }
     await prisma.pass.upsert({
       where: {
         userId_passedUserId: { userId, passedUserId },
