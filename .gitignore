@@ -45,3 +45,7 @@ next-env.d.ts
 .vercel
 .turbo
 bugs
+
+# Cursor / IDE plans (optional)
+.cursor/plans/
+*.plan.md

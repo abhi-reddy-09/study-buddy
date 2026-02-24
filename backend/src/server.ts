@@ -1,4 +1,5 @@
 import path from 'path';
+import http from 'http';
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -11,7 +12,9 @@ import authRoutes from './routes/auth';
 import profileRoutes from './routes/profile';
 import discoveryRoutes from './routes/discovery';
 import matchesRoutes from './routes/matches';
+import messagesRoutes from './routes/messages';
 import { authenticateToken, AuthRequest } from './middleware/auth';
+import { initSocket } from './lib/socket';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { generalLimiter, authLimiter } from './middleware/rateLimit';
@@ -89,6 +92,7 @@ app.use('/auth', authLimiter, authRoutes);
 app.use('/profile', profileRoutes);
 app.use('/discovery', discoveryRoutes);
 app.use('/matches', matchesRoutes);
+app.use('/messages', authenticateToken, messagesRoutes);
 
 app.get('/users', authenticateToken, async (req: AuthRequest, res: Response, next) => {
   try {
@@ -107,7 +111,9 @@ app.use(errorHandler);
 if (process.env.NODE_ENV !== 'test') {
   checkDatabaseConnection()
     .then(() => {
-      app.listen(port, () => {
+      const server = http.createServer(app);
+      initSocket(server, allowedOrigins);
+      server.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`);
         console.log('[server]: Database connection OK');
       });

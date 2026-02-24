@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import api, { ApiError } from "@/src/lib/api"
+import { connectSocket, disconnectSocket } from "@/src/lib/socket"
 import { type ProfileGender } from "@/src/lib/avatar"
 
 export interface User {
@@ -35,6 +36,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+
+  // Socket: connect when authenticated, disconnect on logout
+  useEffect(() => {
+    if (user && token) {
+      connectSocket()
+    } else {
+      disconnectSocket()
+    }
+    return () => {
+      if (!user || !token) disconnectSocket()
+    }
+  }, [user, token])
 
   // On mount: restore auth state from localStorage token
   useEffect(() => {
@@ -73,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = useCallback(() => {
+    disconnectSocket()
     localStorage.removeItem("token")
     localStorage.removeItem("refreshToken")
     setUser(null)

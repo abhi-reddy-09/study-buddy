@@ -1,6 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const getAuthToken = () => {
+export const getAuthToken = () => {
   return localStorage.getItem('token');
 };
 
@@ -26,6 +26,9 @@ export class ApiError extends Error {
 }
 
 const handleResponse = async (res: Response) => {
+  if (res.status === 204) {
+    return {};
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new ApiError(data.error || `Request failed with status ${res.status}`, res.status);
