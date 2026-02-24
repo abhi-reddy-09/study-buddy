@@ -90,15 +90,32 @@ export function initSocket(server: http.Server, allowedOrigins: string[]) {
       }
     });
 
-    socket.on('typing_start', (payload: { otherUserId: string }) => {
+    const checkAcceptedMatch = async (otherUserId: string) => {
+      const match = await prisma.match.findFirst({
+        where: {
+          status: 'ACCEPTED',
+          OR: [
+            { initiatorId: userId, receiverId: otherUserId },
+            { initiatorId: otherUserId, receiverId: userId },
+          ],
+        },
+      });
+      return !!match;
+    };
+
+    socket.on('typing_start', async (payload: { otherUserId: string }) => {
       const otherUserId = payload?.otherUserId;
       if (!otherUserId) return;
+      const allowed = await checkAcceptedMatch(otherUserId);
+      if (!allowed) return;
       io.to(`user:${otherUserId}`).emit('user_typing', { userId });
     });
 
-    socket.on('typing_stop', (payload: { otherUserId: string }) => {
+    socket.on('typing_stop', async (payload: { otherUserId: string }) => {
       const otherUserId = payload?.otherUserId;
       if (!otherUserId) return;
+      const allowed = await checkAcceptedMatch(otherUserId);
+      if (!allowed) return;
       io.to(`user:${otherUserId}`).emit('user_stopped_typing', { userId });
     });
 
@@ -106,6 +123,8 @@ export function initSocket(server: http.Server, allowedOrigins: string[]) {
       try {
         const otherUserId = payload?.otherUserId;
         if (!userId || !otherUserId) return;
+        const allowed = await checkAcceptedMatch(otherUserId);
+        if (!allowed) return;
 
         await prisma.message.updateMany({
           where: {

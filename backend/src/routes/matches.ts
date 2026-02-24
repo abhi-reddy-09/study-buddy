@@ -26,14 +26,20 @@ router.post('/', authenticateToken, validate(createMatchSchema), async (req: Aut
 
     const existing = await prisma.match.findFirst({
       where: {
-        OR: [
-          { initiatorId: req.userId, receiverId },
-          { initiatorId: receiverId, receiverId: req.userId },
-        ],
+        initiatorId: req.userId,
+        receiverId,
       },
     });
 
     if (existing) {
+      if (existing.status === 'REJECTED') {
+        // Allow re-initiation: update existing REJECTED match to PENDING
+        const match = await prisma.match.update({
+          where: { id: existing.id },
+          data: { status: 'PENDING' },
+        });
+        return res.status(201).json(match);
+      }
       throw new AppError(400, 'Match already exists');
     }
 

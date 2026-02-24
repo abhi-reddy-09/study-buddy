@@ -90,4 +90,23 @@ describe('Discovery Routes', () => {
       });
     });
   });
+
+  describe('POST /discovery/pass', () => {
+    it('should record a pass successfully', async () => {
+      const res = await request(app)
+        .post('/discovery/pass')
+        .set('Authorization', `Bearer ${token1}`)
+        .send({ passedUserId: user2.id });
+      expect(res.statusCode).toEqual(204);
+    });
+
+    it('should return 404 for non-existent user', async () => {
+      const res = await request(app)
+        .post('/discovery/pass')
+        .set('Authorization', `Bearer ${token1}`)
+        .send({ passedUserId: 'clxxxxxxxxxxxxxxxxxxxxxxxxx' });
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('error');
+    });
+  });
 });

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Routes, Route, useLocation } from "react-router-dom"
 import { Navbar } from "@/components/navbar"
-import { AuthProvider, useAuth } from "@/src/contexts/AuthContext"
+import { useAuth } from "@/src/contexts/AuthContext"
 import { ProtectedRoute } from "@/src/components/ProtectedRoute"
 import { Toaster } from "sonner"
 import LandingPage from "@/src/pages/LandingPage"
@@ -46,9 +46,7 @@ function AppShell() {
 export default function App() {
   return (
     <div className="min-h-screen bg-white text-black">
-      <AuthProvider>
-        <AppShell />
-      </AuthProvider>
+      <AppShell />
     </div>
   )
 }
