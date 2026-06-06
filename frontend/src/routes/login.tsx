@@ -31,6 +31,7 @@ function getApiBaseUrl() {
 }
 
 const API_BASE_URL = getApiBaseUrl();
+const APP_BASE_URL = import.meta.env.BASE_URL;
 
 const storageKey = "studybuddy.session";
 const inputClass = "field w-full rounded-md px-3 py-2.5 text-sm";
@@ -119,7 +120,7 @@ function LoginPage() {
   function saveSession(session: Session) {
     window.localStorage.setItem(storageKey, JSON.stringify(session));
     setStatus(`Welcome, ${displayName(session)}. Opening your dashboard.`);
-    window.location.assign("/");
+    window.location.assign(APP_BASE_URL);
   }
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
@@ -158,7 +159,7 @@ function LoginPage() {
     <main className="app-canvas min-h-screen">
       <section className="mx-auto grid min-h-screen max-w-7xl items-center gap-10 px-5 py-10 lg:grid-cols-[1fr_440px]">
         <div>
-          <a href="/" className={`${secondaryButtonClass} mb-12`}>
+          <a href={APP_BASE_URL} className={`${secondaryButtonClass} mb-12`}>
             <ArrowLeft className="h-4 w-4" />
             Home
           </a>
