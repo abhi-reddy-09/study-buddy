@@ -51,6 +51,18 @@ function getApiBaseUrl() {
 
 const API_BASE_URL = getApiBaseUrl();
 
+function getBackendUnavailableMessage() {
+  if (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")) {
+    const dnsHint = API_BASE_URL.includes(".up.railway.app")
+      ? " If this domain does not resolve on your network, switch DNS to 1.1.1.1 or 8.8.8.8, or attach a custom domain in Railway."
+      : "";
+
+    return `Could not reach the production backend at ${API_BASE_URL}. Check that VITE_API_URL is correct and ALLOWED_ORIGIN includes ${window.location.origin}.${dnsHint}`;
+  }
+
+  return `Could not reach the backend at ${API_BASE_URL}. Start the backend with "npm run dev" in the backend folder and make sure MySQL is running.`;
+}
+
 type Profile = {
   firstName: string;
   lastName: string;
@@ -190,9 +202,7 @@ async function apiRequest<T>(path: string, options: RequestInit = {}, token?: st
       },
     });
   } catch {
-    throw new Error(
-      `Could not reach the backend at ${API_BASE_URL}. Start the backend with "npm run dev" in the backend folder and make sure MySQL is running.`,
-    );
+    throw new Error(getBackendUnavailableMessage());
   }
 
   if (response.status === 204) {
